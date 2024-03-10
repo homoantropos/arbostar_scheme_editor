@@ -72,5 +72,24 @@
   font-weight: 500;
   text-decoration: none !important;
 }
+.scheme__main.back__drop .scheme__wrapper .loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border: 6px solid #3498db;
+  border-right-color: #f3f3f3;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 900ms linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 /*# sourceMappingURL=scheme.css.map */
