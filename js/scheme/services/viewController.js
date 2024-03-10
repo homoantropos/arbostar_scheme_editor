@@ -1,11 +1,17 @@
+const { BehaviorSubject, Subject } = rxjs;
+const { takeUntil } = rxjs.operators;
 class ViewController {
+    loading$ = new BehaviorSubject(false);
+    destroy$ = new Subject();
+    constructor() { }
+
     initViewController() {
         this.schemeUiElementsKeys.map(
             key => {
                 let element = this.getSchemeUiElement(key);
                 let {elementClass, listeners} = element;
                 element.targetElement = document.getElementsByClassName(elementClass)[0];
-                listeners.forEach(
+                listeners.length && listeners.forEach(
                     listener => {
                         if (element.targetElement) {
                             element.targetElement.addEventListener(listener.eventName, listener.callback);
@@ -14,28 +20,47 @@ class ViewController {
                     }
                 )
             }
-        )
+        );
+
+        this.loading$.pipe(takeUntil(this.destroy$)).subscribe({
+                next: (load) => {
+                    this.setLoader(load);
+                },
+                error: (error) => console.error('Error while loader set: ', error)
+            }
+        );
     }
+
+    setLoader(load) {
+        if (load) {
+            this.showElements(['schemeWrapper', 'loader']);
+            this.disableAllButtons();
+        } else {
+            this.showElements(this.getSchemeUiElement('previewContainer').elements);
+            this.enableAllButtons();
+        }
+    }
+
     // elements visibility
     setElementVisibility(schemeElementUiName, hide) {
         const schemeUiElement = this.getSchemeUiElement(schemeElementUiName);
-        if(!schemeUiElement.targetElement) {
+        if (!schemeUiElement.targetElement) {
             console.log('Target element is empty!');
             return;
         }
         schemeUiElement.hide = hide;
-        if (!schemeUiElement.elementClass.includes('button')) {
-            schemeUiElement.targetElement.hidden = schemeUiElement.hide;
-        } else {
-            schemeUiElement.targetElement.style.display = schemeUiElement.hide ? 'none' : 'block';
-        }
+        schemeUiElement.display = hide ? 'none' : 'block';
+        schemeUiElement.targetElement && (schemeUiElement.targetElement.style.display = schemeUiElement.hide ? 'none' : 'block');
     }
+
     showElement(schemeElementUiName) {
         this.setElementVisibility(schemeElementUiName, false);
     }
+
     hideElement(schemeElementUiName) {
         this.setElementVisibility(schemeElementUiName, true);
     }
+
     showElements(namesElementsToShowArray) {
         if (!Array.isArray(namesElementsToShowArray)) return;
         const checkType = namesElementsToShowArray.every(el => typeof el === 'string');
@@ -46,6 +71,7 @@ class ViewController {
             }
         );
     }
+
     // buttons disable attribute
     setButtonDisabledState(buttonName, disableSate) {
         const button = this.getSchemeUiElement(buttonName);
@@ -53,12 +79,15 @@ class ViewController {
         button.disabled = disableSate;
         button.targetElement && (button.targetElement.disabled = button.disabled);
     }
+
     enableButton(elementName) {
         this.setButtonDisabledState(elementName, false)
     }
+
     disableButton(elementName) {
         this.setButtonDisabledState(elementName, true)
     }
+
     enableAllButtons() {
         this.schemeButtons.forEach(
             elementName => this.enableButton(elementName)
@@ -92,6 +121,7 @@ class ViewController {
         schemeWrapper: {
             elementClass: 'scheme__wrapper',
             targetElement: undefined,
+            display: 'block',
             hide: false,
             elements: [],
             listeners: [
@@ -106,6 +136,7 @@ class ViewController {
         mapContainer: {
             elementClass: 'map__container',
             targetElement: undefined,
+            display: 'block',
             hide: false,
             elements: ['schemeWrapper', 'mapContainer', 'takeScreenButton', 'closeMapButton'],
             listeners: [
@@ -120,6 +151,7 @@ class ViewController {
         previewContainer: {
             elementClass: 'preview__container',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closePreviewButton'],
             listeners: [
@@ -134,6 +166,7 @@ class ViewController {
         canvasContainer: {
             elementClass: 'canvas__container',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             elements: ['schemeWrapper', 'canvasContainer', 'saveButton', 'canselButton'],
             listeners: [
@@ -145,6 +178,14 @@ class ViewController {
                 }
             ]
         },
+        loader: {
+            elementClass: 'loader',
+            targetElement: undefined,
+            display: 'none',
+            hide: true,
+            elements: [],
+            listeners: []
+        },
         takeScreenButton: {
             elementClass: 'take__screen__button',
             targetElement: undefined,
@@ -154,7 +195,10 @@ class ViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        this.showElements(this.getSchemeUiElement('previewContainer').elements);
+                        this.loading$.next(true);
+                        setTimeout(
+                            () => this.loading$.next(false), 1000
+                        )
                     }
                 }
             ]
@@ -162,6 +206,7 @@ class ViewController {
         saveButton: {
             elementClass: 'save__button',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             disabled: false,
             listeners: [
@@ -177,6 +222,7 @@ class ViewController {
         editButton: {
             elementClass: 'edit__button',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             disabled: false,
             listeners: [
@@ -192,6 +238,7 @@ class ViewController {
         restoreButton: {
             elementClass: 'restore__button',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             disabled: false,
             listeners: [
@@ -206,6 +253,7 @@ class ViewController {
         canselButton: {
             elementClass: 'cansel__button',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             disabled: false,
             listeners: [
@@ -221,6 +269,7 @@ class ViewController {
         closePreviewButton: {
             elementClass: 'close__preview__button',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             disabled: false,
             listeners: [
@@ -236,6 +285,7 @@ class ViewController {
         closeMapButton: {
             elementClass: 'close__map__button',
             targetElement: undefined,
+            display: 'block',
             hide: false,
             disabled: false,
             listeners: [
@@ -251,6 +301,7 @@ class ViewController {
         deleteButton: {
             elementClass: 'delete__button',
             targetElement: undefined,
+            display: 'none',
             hide: true,
             disabled: false,
             listeners: [
