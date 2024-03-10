@@ -1,7 +1,7 @@
 import { imagesManager } from "./imagesManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 import { model } from "../model/model.js";
-import {keys} from "../config/keys.js";
+import {retrieve} from "../../entryGate/http/requests.js";
 
 class SchemeManager {
     _currentScheme = null;
@@ -35,28 +35,13 @@ class SchemeManager {
     }
     async fetchScheme(url) {
         try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Referer': 'https://stageapp.arbostar.com/',
-                    'Authorization': keys.token
-                },
-                body: JSON.stringify({
-                    lead_id: 34559
-                })
-            });
-
-            if (!response.ok) {
-                throw response;
-            }
-            const data = await response.json();
+            const data = await retrieve(url);
             const uploadedScheme = await schemeManager.createSchemeFromOriginalURLAndElementsObj(data);
             if(model.objectIsScheme(uploadedScheme)) {
                 this._currentScheme = getSafeCopy(uploadedScheme);
             }
         } catch (error) {
-            console.log(error);
+            console.log('Error while scheme retrieving: ', error);
         }
     }
     destroySchemeService() {
