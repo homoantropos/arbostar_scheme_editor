@@ -1,0 +1,28 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+button::-moz-focus-inner {
+  padding: 0;
+  border: 0;
+}
+
+input[type=text]::-ms-clear {
+  display: none;
+}
+input[type=password]::-ms-reveal {
+  display: none;
+}
+input:not([type=radio]):not([type=checkbox]) {
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+select, textarea {
+  -webkit-appearance: none;
+  border-radius: 0;
+}
+
+/*# sourceMappingURL=null.css.map */

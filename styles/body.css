@@ -1,21 +1,12 @@
-* {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-}
-
 body {
+  margin: 0;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   width: 100vw;
   height: 100vh;
   border: solid green 5px;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-body .canvas__wrapper {
-  width: 100%;
-  height: 100%;
-  border: solid grey 10px;
 }
 
 /*# sourceMappingURL=body.css.map */

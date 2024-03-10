@@ -1,7 +1,7 @@
 import { imagesManager } from "./imagesManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 import { model } from "../model/model.js";
-import { config } from "../config/config.js";
+import {keys} from "../config/keys.js";
 
 class SchemeManager {
     _currentScheme = null;
@@ -39,12 +39,11 @@ class SchemeManager {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Role': 'estimator',
                     'Referer': 'https://stageapp.arbostar.com/',
-                    'Authorization': config.token
+                    'Authorization': keys.token
                 },
                 body: JSON.stringify({
-                    lead_id: "34091"
+                    lead_id: 34091
                 })
             });
 
@@ -56,7 +55,6 @@ class SchemeManager {
             if(model.objectIsScheme(uploadedScheme)) {
                 this._currentScheme = getSafeCopy(uploadedScheme);
             }
-
         } catch (error) {
             console.log(error);
         }

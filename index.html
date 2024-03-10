@@ -5,11 +5,46 @@
     <title>Arbostar Scheme Editor</title>
     <link rel="stylesheet" type="text/css" href="styles.css" />
     <script src="https://unpkg.com/fabric@latest/dist/fabric.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rxjs@6/bundles/rxjs.umd.min.js"></script>
 </head>
 <body>
-<div class="canvas__wrapper">
-    <canvas id="canvas_C" #canvas></canvas>
-</div>
+<main class="scheme__main back__drop">
+    <div class="scheme__wrapper" onclick="divClick()">
+        <div class="media__wrap map__container">
+
+        </div>
+        <div class="media__wrap preview__container">
+
+        </div>
+        <div class="media__wrap canvas__container">
+            <canvas id="canvas_C"></canvas>
+        </div>
+        <div class="buttons__container">
+            <button class="delete__button">Delete</button>
+            <button class="close__button">Close</button>
+            <button class="cansel__button">Cansel</button>
+            <button class="take__screen__button">Take a screen</button>
+            <button class="edit__button">Edit</button>
+            <button class="restore__button">Restore</button>
+            <button class="save__button">Save</button>
+        </div>
+    </div>
+</main>
+
 </body>
+<script>
+    window.addEventListener(
+        'resize', () => {
+            const mediaWrapper = document.getElementsByClassName('media__wrap')[0];
+
+            console.log('WIDTH HEIGHT!!', mediaWrapper.width, mediaWrapper.height);
+            console.log('CLIENT WIDTH HEIGHT!!', mediaWrapper.clientWidth, mediaWrapper.clientHeight);
+
+        }
+    );
+    function divClick() {
+        console.log('CLICKED!')
+    }
+</script>
 <script type="module" src="main.mjs"></script>
 </html>

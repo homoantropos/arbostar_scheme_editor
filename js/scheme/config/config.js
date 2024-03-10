@@ -1,7 +1,7 @@
-import { token } from "./keys";
+import { keys } from "./keys.js";
 
 export const config = {
     url: 'https://staging.arbostar.com/',
     schemeUrl: 'https://staging.arbostar.com/app/estimates/scheme',
-    token
+    token: keys.token
 }
