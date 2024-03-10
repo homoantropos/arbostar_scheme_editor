@@ -1,25 +1,20 @@
 import {imagesManager} from "./imagesManager.js";
 import {viewController} from "./viewController.js";
+import {schemeManager} from "./schemeManager.js";
 
 class FabricManager {
     _fabric;
     backImage;
+    editedImage;
 
     initFabricManager() {}
-    drawImage(oImg) {
-        this._fabric.add(oImg);
-        setTimeout(
-            () => viewController.loading$.next(false), 1000
-        )
-
-    }
     async initCanvas() {
         try {
             viewController.loading$.next(true);
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
             const imgDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline('https://staging.arbostar.com/uploads/clients_files/5082/estimates/34091-E/pdf_estimate_no_34091-E_scheme.png')
 
-            this.setImg(imgDataUrl);
+            this.renderFabricCanvas(schemeManager._currentScheme);
         } catch(e) {
             console.error('Error while canvas initiation: ', e);
         }
@@ -39,34 +34,30 @@ class FabricManager {
             console.error('Error while fabric.Canvas create: ', e);
         }
     }
-    setImg(file, tries = 3) {
-        if (!this._fabric && tries > 0) {
-            this.setImg(file, --tries);
-
+    renderFabricCanvas(file, tries = 3) {
+        if ((!file || !this._fabric) && tries > 0) {
+            setTimeout(
+                () => this.renderFabricCanvas(file, --tries), 300
+            )
             return;
         }
-
         viewController.loading$.next(false);
-
         // this.imageIsReady = false;
-        //
-        // this.selectedImage = file;
-
+        this.editedImage = file;
         const img = new Image();
-
         img.onload = ()=> {
             fabric.Image.fromURL(
                 img.src,
                 async (oImg) => {
                 this.setFabricBackgroundImage(oImg);
 
-                //this.angleAllowsRotation() && (await this.rotateBackgroundImage(Number(this.selectedImage?.objects?.deg)));
+                this.angleAllowsRotation() && (await this.rotateBackgroundImage(Number(this.editedImage.elements.deg)));
 
-                // if (file.objects) {
-                //     this.resizeObjectsOnInit(file.objects);
-                //
-                //     await this.addObjectsOnFabricInit(file.objects);
-                // }
+                if (file.elements) {
+                    this.resizeObjectsOnInit(file.elements);
+
+                    await this.addObjectsOnFabricInit(file.elements);
+                }
 
                 this._fabric.renderAll();
 
@@ -87,7 +78,7 @@ class FabricManager {
             console.error('Error while cropper init: ', err);
         };
 
-        img.src = file;
+        img.src = file.original;
     }
     setFabricBackgroundImage(fabricImage) {
         this.backImage = fabricImage;
@@ -121,9 +112,117 @@ class FabricManager {
         this.setFabricSizesAsBackImg();
         const scaleFactor = this.backImage.getScaledWidth() / oldWidth;
         const objects = this._fabric.getObjects();
-        //this.scaleObjects(objects, scaleFactor, true);
+        this.scaleObjects(objects, scaleFactor, true);
         // this.saveImg();
         // this.getPadding();
+    }
+    resizeObjectsOnInit(objects) {
+        const { width, height } = objects;
+
+        if (width && height) {
+            const backImageWidth = this.backImage.getScaledWidth();
+
+            const scaleFactor = backImageWidth / width;
+
+            this.scaleObjects(objects.objects.objects, scaleFactor);
+        }
+    }
+    async addObjectsOnFabricInit(serializedObjects) {
+        try {
+            fabric.util.enlivenObjects(
+                serializedObjects.objects?.objects,
+                objects => {
+                objects.forEach(object => {
+                    this._fabric.add(object);
+                });
+            },
+            ''
+        );
+        } catch (e) {
+            console.error('Error while objects init: ', e);
+
+            throw e;
+        }
+    }
+    angleAllowsRotation() {
+        if (!this.editedImage.elements) {
+            return false;
+        }
+        const { deg } = this.editedImage.elements;
+
+        return typeof deg !== 'undefined' && deg != null && deg !== 0 && deg !== 360;
+    }
+    async rotateBackgroundImage(deg) {
+        return new Promise((resolve, reject) => {
+            if (this._fabric?.backgroundImage && typeof this._fabric.backgroundImage !== 'string') {
+                const multiplier = this.calculateScaleMultiplier();
+
+                this._fabric.backgroundImage.rotate(deg);
+
+                const img = new Image();
+
+                img.onload = () => {
+                    fabric.Image.fromURL(
+                        img.src,
+                        oImg => {
+                            this.setFabricBackgroundImage(oImg);
+                            resolve();
+                        },
+                        {
+                            crossOrigin: 'anonymous'
+                        }
+                    );
+                };
+
+                img.onerror = error => {
+                    console.error('Error rotated image loading: ', error);
+
+                    reject(error);
+                };
+
+                img.src = this._fabric.backgroundImage.toDataURL({
+                    format: 'jpeg',
+                    multiplier
+                });
+            }
+        });
+    }
+
+    calculateScaleMultiplier(width, height) {
+        const w = width ? width : this.backImage.getScaledWidth();
+
+        const h = height ? height : this.backImage.getScaledHeight();
+
+        let multiplier = 1;
+
+        if (this._fabric?.backgroundImage && typeof this._fabric.backgroundImage !== 'string') {
+            multiplier = Math.min(
+                (this._fabric.backgroundImage.width || w) / w,
+
+                (this._fabric.backgroundImage.height || h) / h
+            );
+        }
+
+        return (multiplier > 1 && multiplier) || 1;
+    }
+
+    scaleObjects(objects, scaleFactor, setCoords) {
+        objects.forEach(object => {
+            const {scaleX, scaleY, left, top} = object;
+
+            object.scaleX = this.calculateScaledValue(scaleX, scaleFactor);
+
+            object.scaleY = this.calculateScaledValue(scaleY, scaleFactor);
+
+            object.left = this.calculateScaledValue(left, scaleFactor);
+
+            object.top = this.calculateScaledValue(top, scaleFactor);
+
+            setCoords && object.setCoords();
+        });
+    }
+    calculateScaledValue(value, scaleFactor) {
+        return typeof value === 'number' ? value * scaleFactor : scaleFactor;
     }
     async getScheme() {
         try{

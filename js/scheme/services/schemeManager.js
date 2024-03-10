@@ -1,7 +1,7 @@
 import { imagesManager } from "./imagesManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 import { model } from "../model/model.js";
-import {retrieve} from "../../entryGate/http/requests.js";
+import { retrieve, retrieveMockImage } from "../../entryGate/http/requests.js";
 
 class SchemeManager {
     _currentScheme = null;
@@ -43,6 +43,18 @@ class SchemeManager {
         } catch (error) {
             console.log('Error while scheme retrieving: ', error);
         }
+    }
+    async mockFetchScheme(){
+        const scheme = await retrieveMockImage();
+        this._currentScheme = {
+            original: scheme.url,
+            elements: scheme.objects,
+            // when scheme is just taken
+            dataUrl: scheme.objects,
+            height: scheme.objects.height,
+            width: scheme.objects.width
+        }
+        console.log(this._currentScheme);
     }
     destroySchemeService() {
         this._currentScheme = null;

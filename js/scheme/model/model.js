@@ -8,7 +8,9 @@ class SchemeModelService {
             objects: {
                 version: '',
                 objects: []
-            }
+            },
+            version: '',
+            deg: 0
         },
         // when scheme is just taken
         dataUrl: '',
@@ -27,10 +29,12 @@ class SchemeModelService {
             && candidate.hasOwnProperty('height')
             && candidate.hasOwnProperty('width')
             && (!!candidate.elements
-                && Object.keys(candidate.elements).length === 3
+                && Object.keys(candidate.elements).length === 5
                 && candidate.elements.hasOwnProperty('width')
                 && candidate.elements.hasOwnProperty('height')
                 && candidate.elements.hasOwnProperty('objects')
+                && candidate.elements.hasOwnProperty('version')
+                && candidate.elements.hasOwnProperty('deg')
             )
             && (!!candidate.elements.objects
                 && Object.keys(candidate.elements.objects).length === 2
