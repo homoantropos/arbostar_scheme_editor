@@ -49,6 +49,10 @@ body {
   height: 95%;
   border: solid grey 2px;
 }
+.scheme__main.back__drop .scheme__wrapper .preview__container img {
+  width: 100%;
+  height: auto;
+}
 .scheme__main.back__drop .scheme__wrapper .buttons__container {
   position: absolute;
   bottom: 0;
