@@ -1,3 +1,5 @@
+import {fabricManager} from "./fabricManager.js";
+
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 class ViewController {
@@ -36,7 +38,7 @@ class ViewController {
             this.showElements(['schemeWrapper', 'loader']);
             this.disableAllButtons();
         } else {
-            this.showElements(this.getSchemeUiElement('previewContainer').elements);
+            this.showElements(this.getSchemeUiElement('canvasContainer').elements);
             this.enableAllButtons();
         }
     }
@@ -175,6 +177,10 @@ class ViewController {
                     callback: ($event) => {
                         $event.stopPropagation();
                     }
+                },
+                {
+                    eventName: 'resize',
+                    callback: () => fabricManager.resize()
                 }
             ]
         },

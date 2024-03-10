@@ -9,4 +9,4 @@ await fabricManager.initCanvas();
 
 await fabricManager.getScheme();
 
-fetchScheme(config.url);
+//fetchScheme(config.url);
