@@ -1,3 +1,6 @@
+@import "mixins";
+@import "scss__vars";
+
 .scheme__main {
   &.back__drop {
     border: solid maroon 2px;
@@ -20,7 +23,7 @@
       position: relative;
       width: 740px;
       height: 90vh;
-      background: aliceblue;
+      background: white;
       z-index: 2000;
       @media screen and (max-width: 768px) {
         width: 95vw;
@@ -53,6 +56,46 @@
           top: 50%;
           transform: translate(-50%, -50%);
           & canvas {
+          }
+        }
+        // gallery toolbar
+        & .gallery-tools {
+          @include flexBox(flex, null, space-between, center, null);
+          width: 100%;
+          min-height: 46px;
+          padding: 0 var(--s-side);
+          background: var(--c-bg-d);
+          border-bottom: 1px solid var(--c-border);
+          &_mid {
+            @include flexBox(flex, null, space-around, center, null);
+            flex-grow: 1;
+            .gallery-btn {
+              flex-grow: 1;
+            }
+            &._left {
+              justify-content: flex-start;
+            }
+          }
+          &_left {
+            @include flexBox(flex, null, null, center, null);
+          }
+          &_right {
+            @include flexBox(flex, null, flex-end, center, null);
+          }
+        }
+        & .gallery-tools i, .gallery-tool-icon {
+          @include flexBox(flex, null, center, center, null);
+          min-width: 44px;
+          max-width: 44px;
+          color: var(--c-text);
+          position: relative;
+          vertical-align: top;
+          min-height: 44px;
+          &._disabled {
+            opacity: 0.3;
+          }
+          &._red {
+            color: var(--c-error);
           }
         }
       }

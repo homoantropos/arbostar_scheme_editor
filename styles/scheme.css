@@ -22,7 +22,7 @@
   position: relative;
   width: 740px;
   height: 90vh;
-  background: aliceblue;
+  background: white;
   z-index: 2000;
 }
 @media screen and (max-width: 768px) {
@@ -55,6 +55,49 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 46px;
+  padding: 0;
+  border-bottom: 1px solid;
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools_mid {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-grow: 1;
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools_mid .gallery-btn {
+  flex-grow: 1;
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools_mid._left {
+  justify-content: flex-start;
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools_left {
+  display: flex;
+  align-items: center;
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools_right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools i, .scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tool-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 44px;
+  max-width: 44px;
+  position: relative;
+  vertical-align: top;
+  min-height: 44px;
+}
+.scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tools i._disabled, .scheme__main.back__drop .scheme__wrapper .canvas__container .gallery-tool-icon._disabled {
+  opacity: 0.3;
 }
 .scheme__main.back__drop .scheme__wrapper .buttons__container {
   position: absolute;

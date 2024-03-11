@@ -1,0 +1,46 @@
+// flex box short include
+@mixin flexBox ($display: null, $row:null, $jc: null, $ai: null, $wrap: null) {
+  display: $display;
+  flex-direction: $row;
+  justify-content: $jc;
+  align-items: $ai;
+  flex-wrap: $wrap;
+}
+
+// icons include
+@mixin mico {
+  content: attr(data-content);
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: var(--fz-icon);
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+@mixin mico-o {
+  @include mico;
+  font-family: 'Material Icons Outlined';
+  src: url(assets/fonts/Miconso.woff2) format('woff2');
+}
+@mixin f-icon {
+  font-family: "icomoon" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  font-size: var(--fz-icon);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  &:before {
+    vertical-align: top;
+  }
+}
