@@ -3,7 +3,7 @@ import { fabricManager } from "./services/fabricManager.js";
 import { imagesManager } from "./services/imagesManager.js";
 
 export async function fetchScheme(url) {
-    await schemeManager.mockFetchScheme();
+    await schemeManager.fetchScheme(url);
 }
 
 export function closeSchemeComponent() {

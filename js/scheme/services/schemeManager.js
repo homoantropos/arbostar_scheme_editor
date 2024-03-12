@@ -35,7 +35,10 @@ class SchemeManager {
     }
     async fetchScheme(url) {
         try {
-            const data = await retrieve(url);
+            let data = await retrieve(url);
+            if(data && data.data.elements && typeof data.data.elements === 'string') {
+                data.data.elements = JSON.parse(data.data.elements);
+            }
             const uploadedScheme = await schemeManager.createSchemeFromOriginalURLAndElementsObj(data);
             if(model.objectIsScheme(uploadedScheme)) {
                 this._currentScheme = getSafeCopy(uploadedScheme);
