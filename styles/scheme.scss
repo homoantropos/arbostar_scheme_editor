@@ -51,7 +51,7 @@
           }
         }
         & .canvas__container{
-          padding-top: 10px;
+          position: relative;
           justify-content: center;
           align-items: center;
           width: 100%;
@@ -62,8 +62,6 @@
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            & canvas {
-            }
           }
           // gallery toolbar
           & .gallery-tools {
@@ -71,8 +69,11 @@
             width: 100%;
             min-height: 46px;
             padding: 0 var(--s-side);
-            background: var(--c-bg-d);
+            //background: var(--c-bg-d);
+            background: white;
             border-bottom: 1px solid var(--c-border);
+            position: absolute;
+            transform: translate(0, -100%);
             &_mid {
               @include flexBox(flex, null, space-around, center, null);
               flex-grow: 1;

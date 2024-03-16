@@ -91,7 +91,7 @@ class ViewController {
     setElementVisibility(schemeElementUiName, hide) {
         const schemeUiElement = this.getSchemeUiElement(schemeElementUiName);
         if (!schemeUiElement.targetElement) {
-            console.log('Target element is empty!');
+            debugMessageLogger.logDebug('Target element is empty!');
             return;
         }
         schemeUiElement.hide = hide;

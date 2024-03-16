@@ -51,7 +51,7 @@
   height: auto;
 }
 .scheme__main.back__drop .scheme__wrapper .content__wrapper .canvas__container {
-  padding-top: 10px;
+  position: relative;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -71,7 +71,10 @@
   width: 100%;
   min-height: 46px;
   padding: 0;
+  background: white;
   border-bottom: 1px solid;
+  position: absolute;
+  transform: translate(0, -100%);
 }
 .scheme__main.back__drop .scheme__wrapper .content__wrapper .canvas__container .gallery-tools_mid {
   display: flex;
