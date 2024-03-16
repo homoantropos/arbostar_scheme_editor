@@ -13,8 +13,11 @@ class FabricManager {
     // canvas initialisation and operation
     async initCanvas() {
         try {
-            viewController.loading$.next(true);
+            viewController.viewNavigationState$.next({load: true, targetElementName: 'canvasContainer'});
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
+            this._fabric.isDrawingMode = true;
+            this._fabric.freeDrawingBrush.color = 'green';
+            this._fabric.freeDrawingBrush.width = 20;
             //const imgDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline('https://staging.arbostar.com/uploads/clients_files/5082/estimates/34091-E/pdf_estimate_no_34091-E_scheme.png')
             this.renderFabricCanvas(schemeManager.currentScheme);
         } catch (e) {
@@ -49,7 +52,7 @@ class FabricManager {
             debugMessenger.logDebug(!file ? 'file' : 'file.original');
             return;
         }
-        viewController.loading$.next(false);
+        viewController.viewNavigationState$.next({load: false, targetElementName: 'canvasContainer'});
         // this.imageIsReady = false;
         this.editedImage = file;
         const img = new Image();

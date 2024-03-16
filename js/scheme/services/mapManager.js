@@ -1,3 +1,5 @@
+import schemeManager from "./schemeManager.js";
+
 class MapManager {
     map;
     async initMap() {
@@ -34,8 +36,9 @@ class MapManager {
                     height: element.scrollHeight,
                     x: window.pageXOffset,
                     y: window.pageYOffset
-                }).then(canvas => {
+                }).then(async canvas => {
                     preview.src = canvas.toDataURL();
+                    schemeManager.initSchemeWithMapScreenShot(canvas.toDataURL());
                 });
             }
         } catch(e) {

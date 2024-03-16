@@ -1,10 +1,12 @@
 import fabricManager from "./fabricManager.js";
 import mapManager from "./mapManager.js";
+import debugMessageLogger from "../utils/debugMessageLogger.js";
+import model from "../model/model.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 class ViewController {
-    loading$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
+    viewNavigationState$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
     destroy$ = new Subject();
     constructor() { }
 
@@ -56,13 +58,19 @@ class ViewController {
                 )
             }
         );
-        this.loading$.pipe(takeUntil(this.destroy$)).subscribe({
-                next: (opts) => this.setLoader(opts.load, opts.targetElementName),
+        this.viewNavigationState$.pipe(takeUntil(this.destroy$)).subscribe({
+                next: (opts) => {
+                    if(!model.loaderArgValidate(opts)) {
+                        debugMessageLogger.logDebug('setLoader should be such object { load: boolean, targetElementName: string }');
+                        return;
+                    }
+                    this.setLoader(opts.load, opts.targetElementName)
+                },
                 error: (error) => console.error('Error while loader set: ', error)
             }
         );
-        this.loading$.next({load: true, targetElementName: 'mapContainer'});
-        mapManager.initMap().then(() => this.loading$.next({load: false, targetElementName: 'mapContainer'}));
+        this.viewNavigationState$.next({load: true, targetElementName: 'mapContainer'});
+        mapManager.initMap().then(() => this.viewNavigationState$.next({load: false, targetElementName: 'mapContainer'}));
     }
     destroyViewController() {
         this.destroy$.next();
@@ -246,16 +254,10 @@ class ViewController {
                     callback: async ($event) => {
                         $event.stopPropagation();
                         await mapManager.takeMapAsScreenshot();
-                        //this.showElements(this.getSchemeUiElement('previewContainer').elements);
-                        this.loading$.next({load: true, targetElementName: 'previewContainer'});
+                        this.viewNavigationState$.next({load: true, targetElementName: 'previewContainer'});
                         setTimeout(
                             async () => {
-
-                                // await fetchScheme(config.schemeUrl);
-                                // await fabricManager.initCanvas();
-                                // await fabricManager.getScheme();
-                                //this.loading$.next(false)
-                                this.loading$.next({load: false, targetElementName: 'previewContainer'});
+                                this.viewNavigationState$.next({load: false, targetElementName: 'previewContainer'});
                             }, 200
                         )
                     }
@@ -275,17 +277,8 @@ class ViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        this.loading$.next(true);
-                        const divToggle = document.querySelector('.scheme__main.back__drop');
-                        setTimeout(
-                            async () => {
-                                this.loading$.next(false);
-                                await new Promise(resolve => setTimeout(() => {
-                                    this.hideEditor(divToggle);
-                                    resolve();
-                                    }, 300));
-                            }, 1000
-                        )
+                        this.viewNavigationState$.next({load: true, targetElementName: 'previewContainer'});
+                        setTimeout(() => this.viewNavigationState$.next({load: false, targetElementName: 'previewContainer'}), 1000)
                     }
                 }
             ]
@@ -301,9 +294,11 @@ class ViewController {
             listeners: [
                 {
                     eventName: 'click',
-                    callback: ($event) => {
+                    callback: async ($event) => {
                         $event.stopPropagation();
-                        this.showElements(this.getSchemeUiElement('canvasContainer').elements);
+                        this.viewNavigationState$.next({load: true, targetElementName: 'canvasContainer'});
+                        await fabricManager.initCanvas();
+                        this.viewNavigationState$.next({load: false, targetElementName: 'canvasContainer'});
                     }
                 }
             ]

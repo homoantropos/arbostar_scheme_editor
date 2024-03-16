@@ -1,7 +1,8 @@
 import imagesManager from "./imagesManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
-import { model } from "../model/model.js";
+import model from "../model/model.js";
 import { retrieve, retrieveMockImage } from "../../entryGate/http/requests.js";
+import debugMessageLogger from "../utils/debugMessageLogger.js";
 
 class SchemeManager {
     _currentScheme = null;
@@ -12,12 +13,15 @@ class SchemeManager {
     setCurrentScheme(newScheme) {
         this._currentScheme = getSafeCopy(newScheme);
     }
+    seCurrentSchemeProperty(propertyName, propertyValue) {
+        this.currentScheme[propertyName] = propertyValue;
+    }
     initSchemeService() {}
     async createSchemeFromOriginalURLAndElementsObj(resWithSchemeOriginalURLAndElementsObj) {
         if(!model.respHasSchemeOriginalURLAndElementsObj(resWithSchemeOriginalURLAndElementsObj)) return;
         const { original, elements } = model.getResponseData(resWithSchemeOriginalURLAndElementsObj);
         const dataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(original);
-        return await this.createSchemeImageFromDataUrl(dataUrl, dataUrl, elements);
+        return await this.createScheme(dataUrl, dataUrl, elements);
     }
     // createShemeFromSchemePathAndElementsURLString(resWithSchemePathAndElementsURLString) {
     //     if(!model.respHasSchemePathAndElementsURLs(resWithSchemePathAndElementsURLString)) return;
@@ -26,9 +30,16 @@ class SchemeManager {
     //     if(!model.respHasOnlySchemePathURL(resWithoutSchemeElements)) return;
     // }
 
-
-    async createSchemeImageFromDataUrl(schemeDataUrl, schemeOriginal, schemeElements) {
-        if(arguments.length !== 3) return;
+    initSchemeWithMapScreenShot(mapAsDataUrl) {
+        const scheme = getSafeCopy(model.defaultScheme);
+        scheme.original = mapAsDataUrl;
+        this.setCurrentScheme(scheme);
+    }
+    async createScheme(schemeDataUrl, schemeOriginal, schemeElements) {
+        if(arguments.length !== 3) {
+            debugMessageLogger.logDebug('should be 3 arg')
+            return;
+        }
         if(schemeDataUrl.startsWith('http')) {
             schemeDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(schemeDataUrl);
         }

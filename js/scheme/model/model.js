@@ -66,6 +66,16 @@ class SchemeModelService {
     getResponseData(backEndResponse) {
         return !!backEndResponse && backEndResponse.hasOwnProperty('data') ? backEndResponse.data : backEndResponse;
     }
+
+    loaderArgValidate(loaderArgumentsObj) {
+        return !!loaderArgumentsObj
+        && typeof loaderArgumentsObj === 'object'
+        && Object.keys(loaderArgumentsObj).length === 2
+        && loaderArgumentsObj.hasOwnProperty('load')
+        && loaderArgumentsObj.hasOwnProperty('targetElementName')
+        && typeof loaderArgumentsObj['load'] === 'boolean'
+        && typeof loaderArgumentsObj['targetElementName'] === 'string'
+    }
 }
 
-export const model = new SchemeModelService();
+export default new SchemeModelService();
