@@ -2,6 +2,7 @@ import fabricManager from "./fabricManager.js";
 import mapManager from "./mapManager.js";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
 import model from "../model/model.js";
+import {config} from "../config/config.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
@@ -10,7 +11,7 @@ class ViewController {
 
     showEditor(divToggle) {
         if(!divToggle) return;
-        divToggle.style.display = 'flex';
+        divToggle.style.display = config.display.flex;
         divToggle.classList.add('enter-animation');
         divToggle.classList.remove('leave-animation');
         this.initViewController();
@@ -21,7 +22,7 @@ class ViewController {
         divToggle.classList.remove('enter-animation');
         divToggle.addEventListener('animationend', () => {
             if(divToggle.classList.contains('leave-animation')) {
-                divToggle.style.display = 'none';
+                divToggle.style.display = config.display.none;
             }
         }, {once: true});
         this.destroyViewController();
@@ -33,7 +34,7 @@ class ViewController {
 
         toggleButton.addEventListener('click', () => {
             const displayStyle = getComputedStyle(divToggle).display;
-            if(displayStyle === 'none') {
+            if(displayStyle === config.display.none) {
                 this.showEditor(divToggle)
             } else {
                 this.hideEditor(divToggle);
@@ -95,8 +96,8 @@ class ViewController {
             return;
         }
         schemeUiElement.hide = hide;
-        schemeUiElement.display = hide ? 'none' : 'block';
-        schemeUiElement.targetElement && (schemeUiElement.targetElement.style.display = schemeUiElement.hide ? 'none' : 'block');
+        schemeUiElement.display = hide ? config.display.none : config.display.flex;
+        schemeUiElement.targetElement && (schemeUiElement.targetElement.style.display = schemeUiElement.hide ? config.display.none : config.display.flex);
     }
 
     showElement(schemeElementUiName) {
@@ -199,7 +200,7 @@ class ViewController {
         previewContainer: {
             elementClass: 'preview__container',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closePreviewButton'],
             currentButtons: ['editButton', 'closePreviewButton'],
@@ -215,7 +216,7 @@ class ViewController {
         canvasContainer: {
             elementClass: 'canvas__container',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             elements: ['schemeWrapper', 'canvasContainer', 'saveButton', 'canselButton'],
             currentButtons: ['saveButton', 'canselButton'],
@@ -235,7 +236,7 @@ class ViewController {
         loader: {
             elementClass: 'loader',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             elements: [],
             currentButtons: [],
@@ -267,7 +268,7 @@ class ViewController {
         saveButton: {
             elementClass: 'save__button',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             disabled: true,
             elements: [],
@@ -286,7 +287,7 @@ class ViewController {
         editButton: {
             elementClass: 'edit__button',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             disabled: true,
             elements: [],
@@ -306,7 +307,7 @@ class ViewController {
         restoreButton: {
             elementClass: 'restore__button',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             disabled: true,
             elements: [],
@@ -323,7 +324,7 @@ class ViewController {
         canselButton: {
             elementClass: 'cansel__button',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             disabled: true,
             elements: [],
@@ -341,7 +342,7 @@ class ViewController {
         closePreviewButton: {
             elementClass: 'close__preview__button',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             disabled: true,
             elements: [],
@@ -359,7 +360,7 @@ class ViewController {
         closeMapButton: {
             elementClass: 'close__map__button',
             targetElement: undefined,
-            display: 'flex',
+            display: config.display.flex,
             hide: false,
             disabled: false,
             elements: [],
@@ -378,7 +379,7 @@ class ViewController {
         deleteButton: {
             elementClass: 'delete__button',
             targetElement: undefined,
-            display: 'none',
+            display: config.display.none,
             hide: true,
             disabled: false,
             elements: [],
