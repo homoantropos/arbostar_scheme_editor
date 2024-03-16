@@ -6,8 +6,6 @@ import model from "../model/model.js";
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 class ViewController {
-    viewNavigationRouter$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
-    destroy$ = new Subject();
     constructor() { }
 
     showEditor(divToggle) {
@@ -76,6 +74,9 @@ class ViewController {
         this.destroy$.next();
         this.destroy$.complete();
     }
+    // navigation between views
+    viewNavigationRouter$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
+    destroy$ = new Subject();
     changeActiveView(load, targetElementName) {
         if (load) {
             const buttonsNames = this.getSchemeUiElement(targetElementName)['currentButtons'];
@@ -86,7 +87,6 @@ class ViewController {
             this.enableAllButtons();
         }
     }
-
     // elements visibility
     setElementVisibility(schemeElementUiName, hide) {
         const schemeUiElement = this.getSchemeUiElement(schemeElementUiName);
