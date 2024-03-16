@@ -1,5 +1,6 @@
 import viewController from "./viewController.js";
 import schemeManager from "./schemeManager.js";
+import debugMessanger from "../utils/debugMessageLogger.js"
 
 class FabricManager {
     _fabric;
@@ -42,6 +43,10 @@ class FabricManager {
             setTimeout(
                 () => this.renderFabricCanvas(file, --tries), 300
             )
+            return;
+        }
+        if (!file || !file.original) {
+            debugMessanger.logDebug(!file ? 'file' : 'file.original');
             return;
         }
         viewController.loading$.next(false);

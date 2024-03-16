@@ -30,6 +30,7 @@ body {
   }
 }
 .scheme__main.back__drop .scheme__wrapper {
+  display: none;
   position: relative;
   width: 740px;
   height: 90vh;

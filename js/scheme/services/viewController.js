@@ -123,8 +123,8 @@ class ViewController {
         schemeWrapper: {
             elementClass: 'scheme__wrapper',
             targetElement: undefined,
-            display: 'block',
-            hide: false,
+            display: 'none',
+            hide: true,
             elements: [],
             listeners: [
                 {
