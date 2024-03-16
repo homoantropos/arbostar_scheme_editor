@@ -110,4 +110,4 @@ class ImagesManager {
     }
 }
 
-export const imagesManager = new ImagesManager();
+export default new ImagesManager();

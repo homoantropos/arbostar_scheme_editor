@@ -1,6 +1,5 @@
-import {imagesManager} from "./imagesManager.js";
-import {viewController} from "./viewController.js";
-import {schemeManager} from "./schemeManager.js";
+import viewController from "./viewController.js";
+import schemeManager from "./schemeManager.js";
 
 class FabricManager {
     _fabric;
@@ -247,4 +246,4 @@ class FabricManager {
     ]);
 }
 
-export const fabricManager = new FabricManager();
+export default new FabricManager();

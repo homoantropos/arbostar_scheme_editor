@@ -1,4 +1,4 @@
-import {fabricManager} from "./fabricManager.js";
+import fabricManager from "./fabricManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
@@ -323,4 +323,4 @@ class ViewController {
     })
 }
 
-export const viewController = new ViewController();
+export default new ViewController();

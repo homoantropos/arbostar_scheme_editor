@@ -1,4 +1,4 @@
-import { imagesManager } from "./imagesManager.js";
+import imagesManager from "./imagesManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 import { model } from "../model/model.js";
 import { retrieve, retrieveMockImage } from "../../entryGate/http/requests.js";
@@ -39,7 +39,7 @@ class SchemeManager {
             if(data && data.data.elements && typeof data.data.elements === 'string') {
                 data.data.elements = JSON.parse(data.data.elements);
             }
-            const uploadedScheme = await schemeManager.createSchemeFromOriginalURLAndElementsObj(data);
+            const uploadedScheme = await this.createSchemeFromOriginalURLAndElementsObj(data);
             if(model.objectIsScheme(uploadedScheme)) {
                 this._currentScheme = getSafeCopy(uploadedScheme);
             }
@@ -64,4 +64,4 @@ class SchemeManager {
     }
 }
 
-export const schemeManager = new SchemeManager();
+export default new SchemeManager();
