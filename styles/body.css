@@ -3,46 +3,19 @@ body {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   width: 100vw;
   height: 100vh;
-  border: solid green 5px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+
+
 .toggle__button {
   position: absolute;
-  top: 0;
-  left: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translate(-50%);
   z-index: 20000;
 }
 
-@keyframes enter {
-  0% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes leave {
-  0% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-}
-
-.enter-animation {
-  animation: enter 1s both;
-}
-
-.leave-animation {
-  animation: leave 1s both;
-}
 /*# sourceMappingURL=body.css.map */

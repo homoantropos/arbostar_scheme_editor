@@ -13,26 +13,27 @@
     <button id="toggleSchemeButton" class="toggle__button">scheme</button>
     <div  class="scheme__main back__drop" style="display: none">
         <div class="scheme__wrapper">
-            <div class="media__wrap map__container" id="capture">
-                <div id="map"></div>
-            </div>
-            <div class="media__wrap preview__container">
-                <p>PREVIEW CONTAINER</p>
-                <img alt="scheme" id="schemePreview" />
-            </div>
-            <div class="media__wrap canvas__container">
-                <div class="gallery-tools">
-                    <!-- cropper control buttons -->
-                    <i class="icon-type" onclick="addText()"></i>
-                    <i class="icon-image" onclick="toggleStickers()"></i>
-                    <i class="icon-pen-tool" onclick="togglePaintMode()"></i>
-                    <i class="icon-crop" onclick="startCrop()"></i>
-                    <i class="icon-rotate-ccw" onclick="rotateFabric(-90)"></i>
-                    <i class="icon-rotate-cw" onclick="rotateFabric(90)"></i>
-                    <i class="icon-corner-up-left" onclick="undo()"></i>
+            <div class="content__wrapper">
+                <div class="media__wrap map__container" id="capture">
+                    <div id="map"></div>
                 </div>
-                <div class="canvas__wrapper">
-                    <canvas id="canvas_C"></canvas>
+                <div class="media__wrap preview__container">
+                    <img alt="scheme" id="schemePreview" />
+                </div>
+                <div class="media__wrap canvas__container">
+                    <div class="gallery-tools">
+                        <!-- cropper control buttons -->
+                        <i class="icon-type" onclick="addText()"></i>
+                        <i class="icon-image" onclick="toggleStickers()"></i>
+                        <i class="icon-pen-tool" onclick="togglePaintMode()"></i>
+                        <i class="icon-crop" onclick="startCrop()"></i>
+                        <i class="icon-rotate-ccw" onclick="rotateFabric(-90)"></i>
+                        <i class="icon-rotate-cw" onclick="rotateFabric(90)"></i>
+                        <i class="icon-corner-up-left" onclick="undo()"></i>
+                    </div>
+                    <div class="canvas__wrapper">
+                        <canvas id="canvas_C"></canvas>
+                    </div>
                 </div>
             </div>
             <div class="buttons__container">

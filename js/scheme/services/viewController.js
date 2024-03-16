@@ -1,12 +1,10 @@
 import fabricManager from "./fabricManager.js";
-import { config } from "../config/config.js";
-import { fetchScheme } from "../scheme.main.js";
 import mapManager from "./mapManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 class ViewController {
-    loading$ = new BehaviorSubject(false);
+    loading$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
     destroy$ = new Subject();
     constructor() { }
 
@@ -26,6 +24,7 @@ class ViewController {
                 divToggle.style.display = 'none';
             }
         }, {once: true});
+        this.destroyViewController();
     }
     setToggleButtonOnProjectStart(event) {
         event.stopPropagation();
@@ -57,24 +56,25 @@ class ViewController {
                 )
             }
         );
-
         this.loading$.pipe(takeUntil(this.destroy$)).subscribe({
-                next: (load) => {
-                    this.setLoader(load);
-                },
+                next: (opts) => this.setLoader(opts.load, opts.targetElementName),
                 error: (error) => console.error('Error while loader set: ', error)
             }
         );
-
-        mapManager.initMap();
+        this.loading$.next({load: true, targetElementName: 'mapContainer'});
+        mapManager.initMap().then(() => this.loading$.next({load: false, targetElementName: 'mapContainer'}));
     }
-
-    setLoader(load) {
+    destroyViewController() {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+    setLoader(load, targetElementName) {
         if (load) {
-            this.showElements(['schemeWrapper', 'loader']);
+            const buttonsNames = this.getSchemeUiElement(targetElementName)['currentButtons'];
+            this.showElements(['schemeWrapper', 'loader', ...buttonsNames]);
             this.disableAllButtons();
         } else {
-            this.showElements(this.getSchemeUiElement('mapContainer').elements);
+            this.showElements(this.getSchemeUiElement(targetElementName).elements);
             this.enableAllButtons();
         }
     }
@@ -162,6 +162,7 @@ class ViewController {
             display: 'flex',
             hide: false,
             elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
@@ -177,6 +178,7 @@ class ViewController {
             display: 'flex',
             hide: false,
             elements: ['schemeWrapper', 'mapContainer', 'takeScreenButton', 'closeMapButton'],
+            currentButtons: ['takeScreenButton', 'closeMapButton'],
             listeners: [
                 {
                     eventName: 'click',
@@ -192,6 +194,7 @@ class ViewController {
             display: 'none',
             hide: true,
             elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closePreviewButton'],
+            currentButtons: ['editButton', 'closePreviewButton'],
             listeners: [
                 {
                     eventName: 'click',
@@ -207,6 +210,7 @@ class ViewController {
             display: 'none',
             hide: true,
             elements: ['schemeWrapper', 'canvasContainer', 'saveButton', 'canselButton'],
+            currentButtons: ['saveButton', 'canselButton'],
             listeners: [
                 {
                     eventName: 'click',
@@ -226,19 +230,24 @@ class ViewController {
             display: 'none',
             hide: true,
             elements: [],
+            currentButtons: [],
             listeners: []
         },
         takeScreenButton: {
             elementClass: 'take__screen__button',
             targetElement: undefined,
             hide: false,
+            disabled: false,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
                     callback: async ($event) => {
                         $event.stopPropagation();
                         await mapManager.takeMapAsScreenshot();
-                        this.showElements(this.getSchemeUiElement('previewContainer').elements);
+                        //this.showElements(this.getSchemeUiElement('previewContainer').elements);
+                        this.loading$.next({load: true, targetElementName: 'previewContainer'});
                         setTimeout(
                             async () => {
 
@@ -246,7 +255,8 @@ class ViewController {
                                 // await fabricManager.initCanvas();
                                 // await fabricManager.getScheme();
                                 //this.loading$.next(false)
-                            }, 1000
+                                this.loading$.next({load: false, targetElementName: 'previewContainer'});
+                            }, 200
                         )
                     }
                 }
@@ -257,7 +267,9 @@ class ViewController {
             targetElement: undefined,
             display: 'none',
             hide: true,
-            disabled: false,
+            disabled: true,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
@@ -283,7 +295,9 @@ class ViewController {
             targetElement: undefined,
             display: 'none',
             hide: true,
-            disabled: false,
+            disabled: true,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
@@ -299,7 +313,9 @@ class ViewController {
             targetElement: undefined,
             display: 'none',
             hide: true,
-            disabled: false,
+            disabled: true,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
@@ -314,7 +330,9 @@ class ViewController {
             targetElement: undefined,
             display: 'none',
             hide: true,
-            disabled: false,
+            disabled: true,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
@@ -330,7 +348,9 @@ class ViewController {
             targetElement: undefined,
             display: 'none',
             hide: true,
-            disabled: false,
+            disabled: true,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
@@ -347,6 +367,8 @@ class ViewController {
             display: 'flex',
             hide: false,
             disabled: false,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
@@ -364,6 +386,8 @@ class ViewController {
             display: 'none',
             hide: true,
             disabled: false,
+            elements: [],
+            currentButtons: [],
             listeners: [
                 {
                     eventName: 'click',
