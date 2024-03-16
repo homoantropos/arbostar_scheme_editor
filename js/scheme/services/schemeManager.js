@@ -5,6 +5,13 @@ import { retrieve, retrieveMockImage } from "../../entryGate/http/requests.js";
 
 class SchemeManager {
     _currentScheme = null;
+    get currentScheme() {
+        return this._currentScheme;
+    }
+
+    setCurrentScheme(newScheme) {
+        this._currentScheme = getSafeCopy(newScheme);
+    }
     initSchemeService() {}
     async createSchemeFromOriginalURLAndElementsObj(resWithSchemeOriginalURLAndElementsObj) {
         if(!model.respHasSchemeOriginalURLAndElementsObj(resWithSchemeOriginalURLAndElementsObj)) return;
@@ -41,7 +48,7 @@ class SchemeManager {
             }
             const uploadedScheme = await this.createSchemeFromOriginalURLAndElementsObj(data);
             if(model.objectIsScheme(uploadedScheme)) {
-                this._currentScheme = getSafeCopy(uploadedScheme);
+                this.setCurrentScheme(getSafeCopy(uploadedScheme));
             }
         } catch (error) {
             console.log('Error while scheme retrieving: ', error);
@@ -49,18 +56,18 @@ class SchemeManager {
     }
     async mockFetchScheme(){
         const scheme = await retrieveMockImage();
-        this._currentScheme = {
+        this.setCurrentScheme({
             original: scheme.url,
             elements: scheme.objects,
             // when scheme is just taken
             dataUrl: scheme.objects,
             height: scheme.objects.height,
             width: scheme.objects.width
-        }
-        console.log(this._currentScheme);
+        });
+        console.log(this.currentScheme);
     }
     destroySchemeService() {
-        this._currentScheme = null;
+        this.setCurrentScheme(null);
     }
 }
 

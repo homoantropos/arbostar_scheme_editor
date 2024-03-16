@@ -7,11 +7,11 @@ class MainCodebaseBridge {
 
     }
     exportEditedSchemeToMainProject() {
-        return schemeManager._currentScheme;
+        return schemeManager.currentScheme;
     }
 
     getEditedSchemeCopy() {
-        return getSafeCopy(schemeManager._currentScheme);
+        return getSafeCopy(schemeManager.currentScheme);
     }
 }
 

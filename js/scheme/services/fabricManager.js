@@ -15,7 +15,7 @@ class FabricManager {
             viewController.loading$.next(true);
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
             //const imgDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline('https://staging.arbostar.com/uploads/clients_files/5082/estimates/34091-E/pdf_estimate_no_34091-E_scheme.png')
-            this.renderFabricCanvas(schemeManager._currentScheme);
+            this.renderFabricCanvas(schemeManager.currentScheme);
         } catch (e) {
             console.error('Error while canvas initiation: ', e);
         }
