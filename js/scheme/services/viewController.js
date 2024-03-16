@@ -96,8 +96,8 @@ class ViewController {
             return;
         }
         schemeUiElement.hide = hide;
-        schemeUiElement.display = hide ? config.display.none : config.display.flex;
-        schemeUiElement.targetElement && (schemeUiElement.targetElement.style.display = schemeUiElement.hide ? config.display.none : config.display.flex);
+        schemeUiElement.display = hide ? config.display.none : config.display.block;
+        schemeUiElement.targetElement && (schemeUiElement.targetElement.style.display = schemeUiElement.hide ? config.display.none : config.display.block);
     }
 
     showElement(schemeElementUiName) {
@@ -168,7 +168,7 @@ class ViewController {
         schemeWrapper: {
             elementClass: 'scheme__wrapper',
             targetElement: undefined,
-            display: 'flex',
+            display: config.display.flex,
             hide: false,
             elements: [],
             currentButtons: [],
@@ -184,7 +184,7 @@ class ViewController {
         mapContainer: {
             elementClass: 'map__container',
             targetElement: undefined,
-            display: 'flex',
+            display: config.display.flex,
             hide: false,
             elements: ['schemeWrapper', 'mapContainer', 'takeScreenButton', 'closeMapButton'],
             currentButtons: ['takeScreenButton', 'closeMapButton'],
