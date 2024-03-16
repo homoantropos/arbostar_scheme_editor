@@ -1,6 +1,6 @@
 import viewController from "./viewController.js";
 import schemeManager from "./schemeManager.js";
-import debugMessanger from "../utils/debugMessageLogger.js"
+import debugMessenger from "../utils/debugMessageLogger.js"
 
 class FabricManager {
     _fabric;
@@ -46,7 +46,7 @@ class FabricManager {
             return;
         }
         if (!file || !file.original) {
-            debugMessanger.logDebug(!file ? 'file' : 'file.original');
+            debugMessenger.logDebug(!file ? 'file' : 'file.original');
             return;
         }
         viewController.loading$.next(false);
