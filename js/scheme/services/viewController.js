@@ -1,7 +1,7 @@
 import fabricManager from "./fabricManager.js";
 import { config } from "../config/config.js";
 import { fetchScheme } from "../scheme.main.js";
-import schemeManager from "./schemeManager.js";
+import mapManager from "./mapManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
@@ -65,6 +65,8 @@ class ViewController {
                 error: (error) => console.error('Error while loader set: ', error)
             }
         );
+
+        mapManager.initMap();
     }
 
     setLoader(load) {
@@ -72,7 +74,7 @@ class ViewController {
             this.showElements(['schemeWrapper', 'loader']);
             this.disableAllButtons();
         } else {
-            this.showElements(this.getSchemeUiElement('canvasContainer').elements);
+            this.showElements(this.getSchemeUiElement('mapContainer').elements);
             this.enableAllButtons();
         }
     }
@@ -173,7 +175,7 @@ class ViewController {
             elementClass: 'map__container',
             targetElement: undefined,
             display: 'flex',
-            hide: schemeManager.currentScheme,
+            hide: false,
             elements: ['schemeWrapper', 'mapContainer', 'takeScreenButton', 'closeMapButton'],
             listeners: [
                 {

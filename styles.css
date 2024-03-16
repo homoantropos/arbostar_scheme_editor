@@ -67,7 +67,6 @@ body {
 }
 .scheme__main.back__drop .scheme__wrapper .canvas__container {
   padding-top: 10px;
-  display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -1418,6 +1417,11 @@ h1, h2, h3, h4, h5 {
   margin: 0;
   margin-bottom: 8px !important;
   text-align: center;
+}
+
+#map {
+  height: 100%;
+  width: 100%;
 }
 
 /*# sourceMappingURL=styles.css.map */

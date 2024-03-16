@@ -49,7 +49,6 @@
 }
 .scheme__main.back__drop .scheme__wrapper .canvas__container {
   padding-top: 10px;
-  display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
