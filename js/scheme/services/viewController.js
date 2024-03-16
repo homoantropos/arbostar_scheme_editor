@@ -235,16 +235,17 @@ class ViewController {
             listeners: [
                 {
                     eventName: 'click',
-                    callback: ($event) => {
+                    callback: async ($event) => {
                         $event.stopPropagation();
-                        console.log('FETCH SCHEME');
-                        this.loading$.next(true);
+                        await mapManager.takeMapAsScreenshot();
+                        this.showElements(this.getSchemeUiElement('previewContainer').elements);
                         setTimeout(
                             async () => {
-                                await fetchScheme(config.schemeUrl);
-                                await fabricManager.initCanvas();
-                                await fabricManager.getScheme();
-                                this.loading$.next(false)
+
+                                // await fetchScheme(config.schemeUrl);
+                                // await fabricManager.initCanvas();
+                                // await fabricManager.getScheme();
+                                //this.loading$.next(false)
                             }, 1000
                         )
                     }
