@@ -6,7 +6,7 @@ import model from "../model/model.js";
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 class ViewController {
-    viewNavigationState$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
+    viewNavigationRouter$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
     destroy$ = new Subject();
     constructor() { }
 
@@ -58,25 +58,25 @@ class ViewController {
                 )
             }
         );
-        this.viewNavigationState$.pipe(takeUntil(this.destroy$)).subscribe({
+        this.viewNavigationRouter$.pipe(takeUntil(this.destroy$)).subscribe({
                 next: (opts) => {
                     if(!model.loaderArgValidate(opts)) {
                         debugMessageLogger.logDebug('setLoader should be such object { load: boolean, targetElementName: string }');
                         return;
                     }
-                    this.setLoader(opts.load, opts.targetElementName)
+                    this.changeActiveView(opts.load, opts.targetElementName)
                 },
                 error: (error) => console.error('Error while loader set: ', error)
             }
         );
-        this.viewNavigationState$.next({load: true, targetElementName: 'mapContainer'});
-        mapManager.initMap().then(() => this.viewNavigationState$.next({load: false, targetElementName: 'mapContainer'}));
+        this.viewNavigationRouter$.next({load: true, targetElementName: 'mapContainer'});
+        mapManager.initMap().then(() => this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'}));
     }
     destroyViewController() {
         this.destroy$.next();
         this.destroy$.complete();
     }
-    setLoader(load, targetElementName) {
+    changeActiveView(load, targetElementName) {
         if (load) {
             const buttonsNames = this.getSchemeUiElement(targetElementName)['currentButtons'];
             this.showElements(['schemeWrapper', 'loader', ...buttonsNames]);
@@ -254,10 +254,10 @@ class ViewController {
                     callback: async ($event) => {
                         $event.stopPropagation();
                         await mapManager.takeMapAsScreenshot();
-                        this.viewNavigationState$.next({load: true, targetElementName: 'previewContainer'});
+                        this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
                         setTimeout(
                             async () => {
-                                this.viewNavigationState$.next({load: false, targetElementName: 'previewContainer'});
+                                this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
                             }, 200
                         )
                     }
@@ -277,8 +277,8 @@ class ViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        this.viewNavigationState$.next({load: true, targetElementName: 'previewContainer'});
-                        setTimeout(() => this.viewNavigationState$.next({load: false, targetElementName: 'previewContainer'}), 1000)
+                        this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
+                        setTimeout(() => this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'}), 1000)
                     }
                 }
             ]
@@ -296,9 +296,9 @@ class ViewController {
                     eventName: 'click',
                     callback: async ($event) => {
                         $event.stopPropagation();
-                        this.viewNavigationState$.next({load: true, targetElementName: 'canvasContainer'});
+                        this.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
                         await fabricManager.initCanvas();
-                        this.viewNavigationState$.next({load: false, targetElementName: 'canvasContainer'});
+                        this.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
                     }
                 }
             ]

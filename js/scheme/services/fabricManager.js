@@ -13,7 +13,7 @@ class FabricManager {
     // canvas initialisation and operation
     async initCanvas() {
         try {
-            viewController.viewNavigationState$.next({load: true, targetElementName: 'canvasContainer'});
+            viewController.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
             this._fabric.isDrawingMode = true;
             this._fabric.freeDrawingBrush.color = 'green';
@@ -52,7 +52,7 @@ class FabricManager {
             debugMessenger.logDebug(!file ? 'file' : 'file.original');
             return;
         }
-        viewController.viewNavigationState$.next({load: false, targetElementName: 'canvasContainer'});
+        viewController.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
         // this.imageIsReady = false;
         this.editedImage = file;
         const img = new Image();
