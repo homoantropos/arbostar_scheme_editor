@@ -9,6 +9,13 @@ body {
   align-items: center;
 }
 
+.toggle__button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20000;
+}
+
 .scheme__main.back__drop {
   border: solid maroon 2px;
   position: fixed;
@@ -29,8 +36,13 @@ body {
     align-items: center;
   }
 }
+.scheme__main.back__drop.enter-animation {
+  animation: enter 300ms both;
+}
+.scheme__main.back__drop.leave-animation {
+  animation: leave 300ms both;
+}
 .scheme__main.back__drop .scheme__wrapper {
-  display: none;
   position: relative;
   width: 740px;
   height: 90vh;
@@ -162,6 +174,26 @@ body {
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+@keyframes enter {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes leave {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
   }
 }
 

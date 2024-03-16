@@ -8,17 +8,18 @@
     <script src="https://cdn.jsdelivr.net/npm/rxjs@6/bundles/rxjs.umd.min.js"></script>
 </head>
 <body>
-<main class="scheme__main back__drop">
-    <button onclick="toggleScheme()">scheme</button>
-    <div class="scheme__wrapper" hidden="hidden">
-        <div class="media__wrap map__container">
-            <p>MAP CONTAINER</p>
-        </div>
-        <div class="media__wrap preview__container">
-            <p>PREVIEW CONTAINER</p>
-            <img src="" alt="scheme" />
-        </div>
-        <div class="media__wrap canvas__container">
+<main>
+    <button id="toggleSchemeButton" class="toggle__button">scheme</button>
+    <div  class="scheme__main back__drop" style="display: none">
+        <div class="scheme__wrapper">
+            <div class="media__wrap map__container">
+                <p>MAP CONTAINER</p>
+            </div>
+            <div class="media__wrap preview__container">
+                <p>PREVIEW CONTAINER</p>
+                <img src="" alt="scheme" />
+            </div>
+            <div class="media__wrap canvas__container">
                 <div class="gallery-tools">
                     <!-- cropper control buttons -->
                     <i class="icon-type" onclick="addText()"></i>
@@ -29,23 +30,25 @@
                     <i class="icon-rotate-cw" onclick="rotateFabric(90)"></i>
                     <i class="icon-corner-up-left" onclick="undo()"></i>
                 </div>
-            <div class="canvas__wrapper">
-                <canvas id="canvas_C"></canvas>
+                <div class="canvas__wrapper">
+                    <canvas id="canvas_C"></canvas>
+                </div>
             </div>
+            <div class="buttons__container">
+                <button class="delete__button">Delete</button>
+                <button class="close__map__button">Close</button>
+                <button class="close__preview__button">Close</button>
+                <button class="cansel__button">Cansel</button>
+                <button class="take__screen__button">Take a screen</button>
+                <button class="edit__button">Edit</button>
+                <button class="restore__button">Restore</button>
+                <button class="save__button">Save</button>
+            </div>
+            <div class="loader"></div>
         </div>
-        <div class="buttons__container">
-            <button class="delete__button">Delete</button>
-            <button class="close__map__button">Close</button>
-            <button class="close__preview__button">Close</button>
-            <button class="cansel__button">Cansel</button>
-            <button class="take__screen__button">Take a screen</button>
-            <button class="edit__button">Edit</button>
-            <button class="restore__button">Restore</button>
-            <button class="save__button">Save</button>
-        </div>
-        <div class="loader"></div>
     </div>
 </main>
+
 
 </body>
 <script type="module" src="main.mjs"></script>

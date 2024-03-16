@@ -19,8 +19,13 @@
     @media screen and (max-width: 900px) and (orientation: landscape) {
       align-items: center;
     }
+    &.enter-animation {
+      animation: enter 300ms both;
+    }
+    &.leave-animation {
+      animation: leave 300ms both;
+    }
     & .scheme__wrapper {
-      display: none;
       position: relative;
       width: 740px;
       height: 90vh;
@@ -149,6 +154,28 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
       }
+    }
+  }
+
+  @keyframes enter {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes leave {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100%);
+      opacity: 0;
     }
   }
 }

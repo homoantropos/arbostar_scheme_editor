@@ -1,4 +1,7 @@
 import fabricManager from "./fabricManager.js";
+import { config } from "../config/config.js";
+import { fetchScheme } from "../scheme.main.js";
+import schemeManager from "./schemeManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
@@ -7,6 +10,37 @@ class ViewController {
     destroy$ = new Subject();
     constructor() { }
 
+    showEditor(divToggle) {
+        if(!divToggle) return;
+        divToggle.style.display = 'flex';
+        divToggle.classList.add('enter-animation');
+        divToggle.classList.remove('leave-animation');
+        this.initViewController();
+    }
+
+    hideEditor(divToggle) {
+        divToggle.classList.add('leave-animation');
+        divToggle.classList.remove('enter-animation');
+        divToggle.addEventListener('animationend', () => {
+            if(divToggle.classList.contains('leave-animation')) {
+                divToggle.style.display = 'none';
+            }
+        }, {once: true});
+    }
+    setToggleButtonOnProjectStart(event) {
+        event.stopPropagation();
+        const toggleButton = document.getElementById('toggleSchemeButton');
+        const divToggle = document.querySelector('.scheme__main.back__drop');
+
+        toggleButton.addEventListener('click', () => {
+            const displayStyle = getComputedStyle(divToggle).display;
+            if(displayStyle === 'none') {
+                this.showEditor(divToggle)
+            } else {
+                this.hideEditor(divToggle);
+            }
+        });
+    }
     initViewController() {
         this.schemeUiElementsKeys.map(
             key => {
@@ -123,8 +157,8 @@ class ViewController {
         schemeWrapper: {
             elementClass: 'scheme__wrapper',
             targetElement: undefined,
-            display: 'none',
-            hide: true,
+            display: 'flex',
+            hide: false,
             elements: [],
             listeners: [
                 {
@@ -138,8 +172,8 @@ class ViewController {
         mapContainer: {
             elementClass: 'map__container',
             targetElement: undefined,
-            display: 'block',
-            hide: false,
+            display: 'flex',
+            hide: schemeManager.currentScheme,
             elements: ['schemeWrapper', 'mapContainer', 'takeScreenButton', 'closeMapButton'],
             listeners: [
                 {
@@ -201,9 +235,15 @@ class ViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        console.log('FETCH SCHEME');
                         this.loading$.next(true);
                         setTimeout(
-                            () => this.loading$.next(false), 1000
+                            async () => {
+                                await fetchScheme(config.schemeUrl);
+                                await fabricManager.initCanvas();
+                                await fabricManager.getScheme();
+                                this.loading$.next(false)
+                            }, 1000
                         )
                     }
                 }
@@ -220,7 +260,17 @@ class ViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        this.showElements([]);
+                        this.loading$.next(true);
+                        const divToggle = document.querySelector('.scheme__main.back__drop');
+                        setTimeout(
+                            async () => {
+                                this.loading$.next(false);
+                                await new Promise(resolve => setTimeout(() => {
+                                    this.hideEditor(divToggle);
+                                    resolve();
+                                    }, 300));
+                            }, 1000
+                        )
                     }
                 }
             ]
@@ -291,7 +341,7 @@ class ViewController {
         closeMapButton: {
             elementClass: 'close__map__button',
             targetElement: undefined,
-            display: 'block',
+            display: 'flex',
             hide: false,
             disabled: false,
             listeners: [
@@ -299,7 +349,8 @@ class ViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        this.showElements([]);
+                        const divToggle = document.querySelector('.scheme__main.back__drop');
+                        this.hideEditor(divToggle);
                     }
                 }
             ]

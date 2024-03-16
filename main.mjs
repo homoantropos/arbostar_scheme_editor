@@ -5,17 +5,5 @@ import {fetchScheme} from "./js/scheme/scheme.main.js";
 import { config } from "./js/scheme/config/config.js";
 
 console.log('FIRST STEP');
+document.addEventListener('DOMContentLoaded', (event) => viewController.setToggleButtonOnProjectStart(event));
 
-viewController.initViewController();
-
-export function toggleScheme() {
-    viewController.setElementVisibility('schemeWrapper', true);
-}
-
-console.log('FETCH SCHEME');
-
-//await fetchScheme(config.schemeUrl);
-
-await fabricManager.initCanvas();
-
-//await fabricManager.getScheme();

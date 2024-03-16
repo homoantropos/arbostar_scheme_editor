@@ -18,8 +18,13 @@
     align-items: center;
   }
 }
+.scheme__main.back__drop.enter-animation {
+  animation: enter 300ms both;
+}
+.scheme__main.back__drop.leave-animation {
+  animation: leave 300ms both;
+}
 .scheme__main.back__drop .scheme__wrapper {
-  display: none;
   position: relative;
   width: 740px;
   height: 90vh;
@@ -151,6 +156,26 @@
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+@keyframes enter {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes leave {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
   }
 }
 

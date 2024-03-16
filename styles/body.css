@@ -9,4 +9,40 @@ body {
   align-items: center;
 }
 
+.toggle__button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20000;
+}
+
+@keyframes enter {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes leave {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+.enter-animation {
+  animation: enter 1s both;
+}
+
+.leave-animation {
+  animation: leave 1s both;
+}
 /*# sourceMappingURL=body.css.map */
