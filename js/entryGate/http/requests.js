@@ -1,6 +1,9 @@
 import {headers} from "./headers.js";
 import {imageExample} from "../../mockddata/imageexample.js";
 
+export async function saveCreatedScheme(scheme) {
+
+}
 export async function retrieve(url) {
     try {
         const response = await fetch(url, {
@@ -21,6 +24,13 @@ export async function retrieve(url) {
     }
 }
 
+export async function upldateScheme(schemePayload, bodyObj) {
+
+}
+
+export async function deleteScheme(schemeUrlOrID) {
+
+}
 export async function retrieveMockImage() {
     try {
         await new Promise(resolve => setTimeout(() => resolve(), 1000));
