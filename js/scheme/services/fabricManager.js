@@ -6,8 +6,9 @@ import { EDITING_MODES } from "../config/config.js";
 const { BehaviorSubject } = rxjs;
 
 class FabricManager {
-    container = document.querySelector('.scheme__wrapper');
-    canvas = document.querySelector('.media__wrap.canvas__container');
+    container = document.querySelector('.content__wrapper');
+    canvas = document.querySelector('#canvas_C');
+    galleryInner = document.querySelector('.media__wrap.canvas__container')
     brushSlider = document.querySelector('#brush-slider');
     trash = document.querySelector('#trash');
     _fabric;
@@ -36,7 +37,7 @@ class FabricManager {
     imageWidthBeforeRotate = 0;
     imageHeightBeforeRotate = 0;
     imageIsReady = false;
-    allowChanges = false;
+    allowChanges = true;
 
     fabricElements$ = new BehaviorSubject({});
     isCropping$ = new BehaviorSubject(false);
@@ -207,8 +208,7 @@ class FabricManager {
     }
 
     setFabricSizesDueBackImg() {
-        const galleryInner = schemeViewController.getSchemeUiElement('canvasContainer').targetElement;
-        const {clientWidth, clientHeight} = galleryInner;
+        const {clientWidth, clientHeight} = this.galleryInner;
         this.backImage.scaleToHeight(clientHeight);
         if (this.backImage.getScaledWidth() > clientWidth) {
             this.backImage.scaleToWidth(clientWidth);
@@ -421,7 +421,7 @@ class FabricManager {
         }
     }
     async rotateFabric(deg){
-        //if (!this.allowChanges) return;
+        if (!this.allowChanges) return;
         this.allowChanges = !this.allowChanges;
         if (deg === 0) return;
         try {
@@ -551,12 +551,13 @@ class FabricManager {
         });
     }
     undo() {}
-    saveImg() {
+    saveImg(cropAgain) {
         new Promise(
             resolve => setTimeout(() => resolve(), 50)
         ).then(
             async () => {
-                if(this._fabric && this.editedScheme && this.editedScheme.url) {
+
+                if(this._fabric && this.editedScheme) {
                         this.stringifyImage();
                         this.editedScheme.objects = this.serializedCanvas;
                         const multiplier = this.calculateScaleMultiplier();
