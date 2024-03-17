@@ -1,7 +1,11 @@
+@import "null";
 @import "media";
 @import "mixins";
 @import "scss__vars";
 @import "gallery";
+@import "colors";
+@import "icons";
+@import "body";
 
 .scheme__main {
   &.back__drop {

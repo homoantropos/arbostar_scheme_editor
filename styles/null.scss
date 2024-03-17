@@ -11,18 +11,18 @@ button {
   }
 }
 
-input {
-  &[type="text"]::-ms-clear {
-    display: none;
-  }
-  &[type="password"]::-ms-reveal {
-    display: none;
-  }
-  &:not([type="radio"]):not([type="checkbox"]) {
-    -webkit-appearance: none;
-    border-radius: 0;
-  }
-}
+//input {
+//  &[type="text"]::-ms-clear {
+//    display: none;
+//  }
+//  &[type="password"]::-ms-reveal {
+//    display: none;
+//  }
+//  &:not([type="radio"]):not([type="checkbox"]) {
+//    -webkit-appearance: none;
+//    border-radius: 0;
+//  }
+//}
 
 //input:-webkit-autofill,
 //input::-webkit-contacts-auto-fill-button,

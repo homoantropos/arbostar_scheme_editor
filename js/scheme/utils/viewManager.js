@@ -36,14 +36,16 @@ export function setElementsVisibility(uiElementsObj, elementUiName, hide) {
     uiElement.display = hide ? config.display.none : uiElement.isFlex ? config.display.flex : config.display.block;
     uiElement.targetElement && (uiElement.targetElement.style.display = uiElement.hide ? config.display.none : uiElement.isFlex ? config.display.flex : config.display.block);
 }
-//
-// showElement(schemeElementUiName) {
-//     this.setSchemeUIElementVisibility(schemeElementUiName, false);
-// }
-//
-// hideElement(schemeElementUiName) {
-//     this.setSchemeUIElementVisibility(schemeElementUiName, true);
-// }
+
+export function showElement(uiElementsObj, elementUiName) {
+
+    setElementsVisibility(uiElementsObj, elementUiName, false);
+}
+
+export function hideElement(uiElementsObj, schemeElementUiName) {
+    setElementsVisibility(uiElementsObj, schemeElementUiName, true);
+}
+
 //
 // showElements(namesElementsToShowArray) {
 //     if (!Array.isArray(namesElementsToShowArray)) return;

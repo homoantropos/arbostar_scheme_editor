@@ -9,17 +9,6 @@ button::-moz-focus-inner {
   border: 0;
 }
 
-input[type=text]::-ms-clear {
-  display: none;
-}
-input[type=password]::-ms-reveal {
-  display: none;
-}
-input:not([type=radio]):not([type=checkbox]) {
-  -webkit-appearance: none;
-  border-radius: 0;
-}
-
 select, textarea {
   -webkit-appearance: none;
   border-radius: 0;

@@ -8,7 +8,7 @@ const { BehaviorSubject } = rxjs;
 class FabricManager {
     container = document.querySelector('.scheme__wrapper');
     canvas = document.querySelector('.media__wrap.canvas__container');
-    brushSlider = document.querySelector('.media__wrap.canvas__container');
+    brushSlider = document.querySelector('#brush-slider');
     trash = document.querySelector('#trash');
     _fabric;
     backImage;
@@ -19,10 +19,12 @@ class FabricManager {
         left: 0
     };
     rect;
+    isShowPalette = false;
     isTrashVisible = false;
     isMouseOverTrash = false;
-    showStickers = true;
+    showStickers = false;
     isITextSelected = false;
+    showPhotos = false;
     text_color = '#dfff30';
     text_size = 30;
     paintColor = '#44bd32';
@@ -129,7 +131,9 @@ class FabricManager {
                 this.isTrashVisible = false;
             }
 
-            if (this.painting) this.saveImg();
+            if (this.painting) {
+                this.saveImg();
+            }
         });
         this._fabric.on('object:moving', (event) => {
             if (event.target) {
@@ -200,8 +204,8 @@ class FabricManager {
         this.backImage = fabricImage;
         this._fabric.setBackgroundImage(this.backImage, this._fabric.renderAll.bind(this._fabric));
         this.setFabricSizesDueBackImg();
-        // this.imageWidthBeforeRotate = this._fabric.width || Number(this.canvas.nativeElement.clientWidth);
-        // this.imageHeightBeforeRotate = this._fabric.height || Number(this.canvas.nativeElement.clientHeight);
+        // this.imageWidthBeforeRotate = this._fabric.width || Number(this.canvas.clientWidth);
+        // this.imageHeightBeforeRotate = this._fabric.height || Number(this.canvas.clientHeight);
     }
 
     setFabricSizesDueBackImg() {
@@ -225,8 +229,8 @@ class FabricManager {
         const scaleFactor = this.backImage.getScaledWidth() / oldWidth;
         const objects = this._fabric.getObjects();
         this.scaleObjects(objects, scaleFactor, true);
-        // this.saveImg();
-        // this.getPadding();
+        this.saveImg();
+        this.getPadding();
     }
 
     resizeObjectsOnInit(objects) {
@@ -291,8 +295,13 @@ class FabricManager {
         this.isITextSelected = true;
         this.saveImg();
     }
-    toggleStickers(){}
+    toggleStickers(){
+        this.showStickers = !this.showStickers;
+        this.painting = false;
+        this.isITextSelected = false;
+    }
     togglePaintMode() {
+        console.log('PAINT!');
         this.deleteCrop();
         this.setEditorMode(EDITING_MODES.paint);
         this.isITextSelected = false;
@@ -310,9 +319,28 @@ class FabricManager {
         }, 20);
     }
 
-    changeBrushSize() {
+    changeBrushSize(newBrushSize) {
+        this.brushSize = newBrushSize;
         this._fabric.freeDrawingBrush.width = this.brushSize;
-    }togglePaintMode() {}
+    }
+    async updatePaint(color = this.paintColor) {
+        if (this.painting) {
+            this._fabric.isDrawingMode = true;
+            this.paintColor = color;
+            //await this._store.set('paint_color', color);
+            this._fabric.freeDrawingBrush.color = color;
+            this._fabric.freeDrawingBrush.width = this.brushSize;
+            this.brushSlider.style.setProperty('--slider-color', color);
+        } else if (this.isITextSelected) {
+            const activeObject = this._fabric.getActiveObject();
+            const text = activeObject.text;
+            activeObject.set('text', '');
+            activeObject.fill = color;
+            activeObject.set('text', text);
+            this._fabric.setActiveObject(activeObject);
+            this._fabric.renderAll();
+        }
+    }
     endPaint() {
         this.setEditorMode(EDITING_MODES.pending);
 
