@@ -53,8 +53,6 @@ class FabricManager {
             this.addFabricEvents();
             //const imgDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline('https://staging.arbostar.com/uploads/clients_files/5082/estimates/34091-E/pdf_estimate_no_34091-E_scheme.png')
             this.renderFabricCanvas(schemeManager.currentScheme);
-            console.log('TRASH: ', this.trash);
-            console.log('canvas: ', this.canvas);
         } catch (e) {
             console.error('Error while canvas initiation: ', e);
         }
@@ -204,8 +202,8 @@ class FabricManager {
         this.backImage = fabricImage;
         this._fabric.setBackgroundImage(this.backImage, this._fabric.renderAll.bind(this._fabric));
         this.setFabricSizesDueBackImg();
-        // this.imageWidthBeforeRotate = this._fabric.width || Number(this.canvas.clientWidth);
-        // this.imageHeightBeforeRotate = this._fabric.height || Number(this.canvas.clientHeight);
+        this.imageWidthBeforeRotate = this._fabric.width || Number(this.canvas.clientWidth);
+        this.imageHeightBeforeRotate = this._fabric.height || Number(this.canvas.clientHeight);
     }
 
     setFabricSizesDueBackImg() {
@@ -241,7 +239,6 @@ class FabricManager {
             this.scaleObjects(objects.objects.objects, scaleFactor);
         }
     }
-
     async addObjectsOnFabricInit(serializedObjects) {
         try {
             fabric.util.enlivenObjects(
@@ -258,7 +255,6 @@ class FabricManager {
             throw e;
         }
     }
-
     getPadding() {
         // empty space between fabric canvas and .gallery-inner borders
         this.paddingImage = {
@@ -300,8 +296,26 @@ class FabricManager {
         this.painting = false;
         this.isITextSelected = false;
     }
+    addSticker(sticker) {
+        this.endPaint();
+        this.setEditorMode(EDITING_MODES.sticker);
+        fabric.loadSVGFromURL(sticker, (objects, options) => {
+            const svg = fabric.util.groupSVGElements(objects, options);
+            if (svg.hasOwnProperty('viewBoxHeight') && svg.hasOwnProperty('viewBoxWidth')) {
+                if (svg.viewBoxHeight > svg.viewBoxWidth) {
+                    svg.scaleToHeight(Math.floor(55));
+                } else {
+                    svg.scaleToWidth(Math.floor(55));
+                }
+            }
+            this._fabric.add(svg);
+            svg.center();
+            this._fabric.renderAll();
+            this.saveImg();
+        });
+        this.showStickers = false;
+    }
     togglePaintMode() {
-        console.log('PAINT!');
         this.deleteCrop();
         this.setEditorMode(EDITING_MODES.paint);
         this.isITextSelected = false;
@@ -310,17 +324,14 @@ class FabricManager {
         this._fabric.isDrawingMode = this.painting;
         this._fabric.freeDrawingBrush.color = this.paintColor;
         this._fabric.freeDrawingBrush.width = this.brushSize;
-        const timeout = setTimeout(() => {
+        setTimeout(() => {
             if (this.brushSlider) {
                 this.brushSlider.style.setProperty('--slider-color', this.paintColor);
             }
-
-            clearTimeout(timeout);
         }, 20);
     }
-
     changeBrushSize(newBrushSize) {
-        this.brushSize = newBrushSize;
+        this.brushSize = parseInt(newBrushSize, 10);;
         this._fabric.freeDrawingBrush.width = this.brushSize;
     }
     async updatePaint(color = this.paintColor) {
@@ -330,7 +341,11 @@ class FabricManager {
             //await this._store.set('paint_color', color);
             this._fabric.freeDrawingBrush.color = color;
             this._fabric.freeDrawingBrush.width = this.brushSize;
-            this.brushSlider.style.setProperty('--slider-color', color);
+            setTimeout(() => {
+                if (this.brushSlider) {
+                    this.brushSlider.style.setProperty('--slider-color', this.paintColor);
+                }
+            }, 20);
         } else if (this.isITextSelected) {
             const activeObject = this._fabric.getActiveObject();
             const text = activeObject.text;
@@ -396,7 +411,116 @@ class FabricManager {
 
         this.isCropping$.next(false);
     }
-    rotateFabric(rotateAngle) {}
+    resetPaint() {
+        this.deleteCrop();
+
+        if (this.painting) {
+            this.togglePaintMode();
+        } else if (this.showStickers) {
+            this.showStickers = false;
+        }
+    }
+    async rotateFabric(deg){
+        //if (!this.allowChanges) return;
+        this.allowChanges = !this.allowChanges;
+        if (deg === 0) return;
+        try {
+            this.resetPaint();
+            this.imageIsReady = false;
+            if (this.editedScheme.objects) {
+                const fullDeg = this.editedScheme.objects.deg ? this.editedScheme.objects.deg + deg : deg;
+                this.editedScheme.objects.deg = this.normalizeAngle(fullDeg);
+            }
+            const currentObjects = await this.cloneFabricObjectsAndRemoveIfNeeded(true);
+            if (this._fabric?.backgroundImage && typeof this._fabric.backgroundImage !== 'string') {
+                const multiplier = this.calculateScaleMultiplier();
+                this._fabric.backgroundImage.rotate(deg);
+                const img = new Image();
+                img.onload = () => {
+                    fabric.Image.fromURL(
+                        img.src,
+                        (oImg) => {
+                            this.backImage = oImg;
+                            this._fabric.setBackgroundImage(this.backImage, this._fabric.renderAll.bind(this._fabric));
+                            this.setFabricSizesDueBackImg();
+                            currentObjects.forEach((object) => {
+                                const resAngle = deg + (object.angle || 0);
+                                const newCoords = this.calculateCoordsPostQuadRotation(object, deg);
+                                object.set({
+                                    left: newCoords.left,
+                                    top: newCoords.top,
+                                    scaleY: newCoords.scaleY,
+                                    scaleX: newCoords.scaleX,
+                                    angle: resAngle
+                                });
+                                this._fabric.add(object);
+                            });
+                            setTimeout(() => {
+                                this.imageIsReady = true;
+                            });
+                            this.saveImg();
+                            this.getPadding();
+                        },
+                        {
+                            crossOrigin: 'anonymous'
+                        }
+                    );
+                };
+
+                img.onerror = (error) => console.error('Error rotated image loading: ', error);
+
+                img.src = this._fabric.backgroundImage.toDataURL({
+                    format: 'jpeg',
+                    multiplier
+                });
+            }
+        } catch (e) {
+            console.error('Error during rotation: ', e);
+        }
+    }
+
+    calculateCoordsPostQuadRotation(object, deg) {
+        const {
+            left: objectLeft = this.imageWidthBeforeRotate,
+            top: objectTop = this.imageHeightBeforeRotate,
+            scaleX = 1,
+            scaleY = 1
+        } = object;
+
+        const { width: rotatedImgWidth = this.imageWidthBeforeRotate, height: rotatedImgHeight = this.imageHeightBeforeRotate } =
+            this._fabric;
+
+        const widthRatio = objectLeft / this.imageWidthBeforeRotate;
+
+        const heightRatio = objectTop / this.imageHeightBeforeRotate;
+
+        const scaleXRatio = scaleX / this.imageWidthBeforeRotate;
+
+        const scaleYRatio = scaleY / this.imageHeightBeforeRotate;
+
+        const newScaleX = rotatedImgHeight * scaleXRatio;
+
+        const newScaleY = rotatedImgWidth * scaleYRatio;
+
+        const newLeft = deg > 0 ? rotatedImgWidth - rotatedImgWidth * heightRatio : rotatedImgWidth * heightRatio;
+
+        const newTop = deg < 0 ? rotatedImgHeight - rotatedImgHeight * widthRatio : rotatedImgHeight * widthRatio;
+
+        return { left: newLeft, top: newTop, scaleX: newScaleX, scaleY: newScaleY };
+    }
+    async cloneFabricObjectsAndRemoveIfNeeded(ifRemove) {
+        return new Promise((resolve, reject) => {
+            try {
+                const currentObjects = [];
+                this._fabric.getObjects().forEach((item) => item.clone((object) => currentObjects.push(object)));
+                ifRemove && this._fabric.remove(...this._fabric.getObjects());
+                resolve(currentObjects);
+            } catch (e) {
+                console.error('Error while get Fabric objects: ', e);
+                reject();
+            }
+        });
+    }
     async rotateBackgroundImage(deg) {
         return new Promise((resolve, reject) => {
             if (this._fabric?.backgroundImage && typeof this._fabric.backgroundImage !== 'string') {

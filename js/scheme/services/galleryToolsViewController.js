@@ -12,10 +12,12 @@ import {
 import debugMessageLogger from "../utils/debugMessageLogger.js";
 
 class GalleryToolsController {
+    stickersAreAdded = false;
     initTools() {
         setUIElementsWithListeners(this.galleryToolsUiElements);
         //this.toggleColorPanAndBrushSlider();
         this.createColorsPanel();
+        this.createStickersBlock();
     }
 
     get galleryUIElementsObjKeys() {
@@ -43,29 +45,48 @@ class GalleryToolsController {
         fabricManager.isShowPalette = ! fabricManager.isShowPalette;
     }
     createColorsPanel() {
-        if (true) {
-            const colorsPanelElement = getUiElement(this.galleryToolsUiElements, 'colorsPanel');
-            if(!colorsPanelElement || !colorsPanelElement.targetElement) {
-                debugMessageLogger.logDebug('target element should be HTMLElement');
-                return;
-            }
-            fabricManager.colors.forEach(color => {
-                const colorClassName = 'color-' + color.replace('#', '');
-                let colorElement = document.querySelector('.' + colorClassName);
-                if(!colorElement) {
-                    colorElement = document.createElement('span');
-                    colorElement.className = 'edit-color';
-                    colorElement.style.background = color;
-                    colorElement.addEventListener('click', async ($event) => {
-                        await fabricManager.updatePaint(color);
-                        fabricManager.isShowPalette = false;
-                        this.toggleColorsPanel();
-                        $event.stopPropagation();
-                    });
-                    colorsPanelElement.targetElement.appendChild(colorElement);
-                }
-            });
+        const colorsPanelElement = getUiElement(this.galleryToolsUiElements, 'colorsPanel');
+        if(!colorsPanelElement || !colorsPanelElement.targetElement) {
+            debugMessageLogger.logDebug('target element should be HTMLElement');
+            return;
         }
+        fabricManager.colors.forEach(color => {
+            const colorClassName = 'color-' + color.replace('#', '');
+            let colorElement = document.querySelector('.' + colorClassName);
+            if(!colorElement) {
+                colorElement = document.createElement('span');
+                colorElement.className = 'edit-color';
+                colorElement.style.background = color;
+                colorElement.addEventListener('click', async ($event) => {
+                    await fabricManager.updatePaint(color);
+                    fabricManager.isShowPalette = false;
+                    this.toggleColorsPanel();
+                    $event.stopPropagation();
+                });
+                colorsPanelElement.targetElement.appendChild(colorElement);
+            }
+        });
+    }
+    createStickersBlock() {
+        if(this.stickersAreAdded) return;
+        this.stickersAreAdded = true;
+        const stickersContainer = getUiElement(this.galleryToolsUiElements, 'stickers');
+        if(!stickersContainer || !stickersContainer.targetElement) {
+            debugMessageLogger.logDebug('target element should be HTMLElement');
+            return;
+        }
+        const container = stickersContainer.targetElement;
+        fabricManager._stickers.map(
+            stickerPath => {
+                const img = document.createElement('IMG');
+                img.src = stickerPath;
+                img.addEventListener('click', () => {
+                    fabricManager.addSticker(stickerPath);
+                    hideElement(this.galleryToolsUiElements, 'stickers');
+                })
+                container.appendChild(img);
+            }
+        )
     }
     setSelected() {
         this.galleryElementsNames.map(
@@ -139,6 +160,7 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        showElement(this.galleryToolsUiElements, 'stickers');
                         fabricManager.toggleStickers();
                         this.setSelected();
                     }
@@ -196,6 +218,7 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        fabricManager.rotateFabric(-90);
                         this.setSelected();
                     }
                 }
@@ -214,6 +237,7 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        fabricManager.rotateFabric(90);
                         this.setSelected();
                     }
                 }
@@ -234,6 +258,25 @@ class GalleryToolsController {
                         $event.stopPropagation();
                         this.setSelected();
                         console.log("UNDO!");
+                    }
+                }
+            ]
+        },
+        stickers: {
+            elementClass: 'stickers',
+            targetElement: undefined,
+            isFlex: true,
+            display: config.display.none,
+            hide: true,
+            elements: [],
+            currentButtons: [],
+            listeners: [
+                {
+                    eventName: 'click',
+                    callback: ($event) => {
+                        $event.stopPropagation();
+                        fabricManager.toggleStickers();
+                        this.setSelected();
                     }
                 }
             ]
@@ -339,8 +382,8 @@ class GalleryToolsController {
             elementClass: 'ei-bin',
             targetElement: undefined,
             isFlex: true,
-            display: config.display.flex,
-            hide: false,
+            display: config.display.none,
+            hide: true,
             elements: [],
             currentButtons: [],
             listeners: [
