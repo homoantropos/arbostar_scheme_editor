@@ -256,8 +256,8 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        fabricManager.undo();
                         this.setSelected();
-                        console.log("UNDO!");
                     }
                 }
             ]

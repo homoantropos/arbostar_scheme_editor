@@ -216,7 +216,6 @@ class FabricManager {
         this._fabric.setWidth(Math.round(this.backImage.getScaledWidth()));
         this._fabric.setHeight(Math.round(this.backImage.getScaledHeight()));
     }
-
     resize() {
         if (!this._fabric) {
             return;
@@ -230,7 +229,6 @@ class FabricManager {
         this.saveImg();
         this.getPadding();
     }
-
     resizeObjectsOnInit(objects) {
         const {width, height} = objects;
         if (width && height) {
@@ -263,6 +261,13 @@ class FabricManager {
         };
 
         this.trash.style.bottom = `${this.paddingImage.top + 10}px`;
+    }
+    resetFabric() {
+        this._fabric.renderAll();
+
+        this._fabric.remove(...this._fabric.getObjects());
+
+        this._fabric.renderAll();
     }
     // fabric image operations
     addText() {
@@ -550,7 +555,36 @@ class FabricManager {
             }
         });
     }
-    undo() {}
+    chooseImg(file) {
+        this.imageIsReady = false;
+
+        this.resetFabric();
+
+        this.renderFabricCanvas(file);
+    }
+    undo(repeat = false) {
+        // if (!this._fabric && this.editingSteps.length === 0) {
+        //     return;
+        // }
+        this.deleteCrop();
+        const arr = this._fabric.getObjects();
+        if (arr.length) {
+            this._fabric.remove(arr.pop());
+            this._fabric.renderAll();
+            if (repeat) {
+                return this.undo(repeat);
+            }
+            this.saveImg();
+        } else if (this.editedScheme?.crop && this.editedScheme?.crop?.length > 0) {
+            const lastState = this.editedScheme.crop.pop();
+            if (lastState) {
+                this.editedScheme.url = this.editedScheme.crop.length === 0 ? lastState.url : lastState.editedUrl || lastState.url;
+                this.chooseImg(this.editedScheme);
+            }
+        } else {
+            //this._alert.show({ text: this.ts.instant('a.youClearedChanges')});
+        }
+    }
     saveImg(cropAgain) {
         new Promise(
             resolve => setTimeout(() => resolve(), 50)
