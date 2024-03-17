@@ -1,0 +1,144 @@
+.stickers {
+  @include flexBox(flex, null, space-around, null, null);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 99;
+  padding: 13px;
+  background: rgba(0, 0, 0, 0.7);
+  overflow-y: auto;
+  max-height: 264px;
+  width: 100%;
+  flex-wrap: wrap;
+  transition: all 0.25s ease;
+  @include bp-max(sm) {
+    padding: 6px;
+    max-height: 214px;
+  }
+  img {
+    display: inline-block !important;
+    margin: 13px;
+    height: 38px;
+    width: auto;
+    @include bp-max(sm) {
+      margin: 6px;
+    }
+  }
+}
+.edit-color {
+  display: inline-block;
+  vertical-align: top;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px #fff;
+}
+// brush size slider
+.size-slider-box {
+  display: inline-flex;
+  align-items: center;
+  width: 140px;
+  position: relative;
+  left: calc(50% - 70px);
+  position: absolute;
+  bottom: 18px;
+  z-index: 1;
+  background: rgba(0,0,0,0.4);
+  border-radius: 4px;
+  input {
+    position: relative;
+    z-index: 1;
+  }
+}
+.slider-brush {
+  width: 100%;
+  height: 20px;
+  background: black;
+  -webkit-appearance: none;
+  border-radius: 5px;
+  background: transparent;
+  outline: none;
+  -webkit-transition: 0.2s;
+  transition: opacity 0.2s;
+  --slider-size: 29px;
+  --slider-color: #242424;
+}
+.slider-brush::-webkit-slider-runnable-track {
+  background: transparent;
+}
+.slider-brush::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--slider-color);
+  cursor: pointer;
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 0 0 2px #fff;
+}
+.range-bg {
+  position: absolute;
+  left: 5px;
+  top: 4px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-color: transparent rgba(255, 255, 255, 0.9) transparent transparent;
+  border-width: 6px 130px 5px 0;
+  border-radius: 4px;
+}
+// remove element bin
+.ei-bin {
+  position: absolute;
+  bottom: 12px;
+  left: calc(50% - 18px);
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--c-error);
+  box-shadow: 0 0 0 1px var(--c-error);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding-bottom: 2px;
+  @include flexBox(inline-flex, null, center, center, null);
+  transform: scale(1);
+  transition: transform 0.2s ease;
+  &._ok {
+    transform: scale(1.1);
+  }
+}
+.ei-color-pick {
+  position: absolute;
+  top: 15px;
+  left: calc(50% - 13px);
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+  z-index: 1;
+  border-radius: 50%;
+  border: 1px solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  &._ok {
+    background: var(--c-error);
+  }
+  i {
+    font-size: 17px;
+    margin-top: -2px;
+  }
+}
+.ei-color-panel {
+  position: absolute;
+  top: 56px;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.4);
+  height: 36px;
+}

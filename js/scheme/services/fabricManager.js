@@ -1,12 +1,43 @@
 import schemeViewController from "./schemeViewController.js";
 import schemeManager from "./schemeManager.js";
 import debugMessenger from "../utils/debugMessageLogger.js"
+import { EDITING_MODES } from "../config/config.js";
+
+const { BehaviorSubject } = rxjs;
 
 class FabricManager {
+    container = document.querySelector('.scheme__wrapper');
+    canvas = document.querySelector('.media__wrap.canvas__container');
+    brushSlider = document.querySelector('.media__wrap.canvas__container');
+    trash = document.querySelector('#trash');
     _fabric;
     backImage;
-    editedImage;
+    editedScheme;
+    serializedCanvas;
+    paddingImage = {
+        top: 0,
+        left: 0
+    };
+    rect;
+    isTrashVisible = false;
+    isMouseOverTrash = false;
+    showStickers = true;
+    isITextSelected = false;
+    text_color = '#dfff30';
+    text_size = 30;
+    paintColor = '#44bd32';
+    brushSize = 4;
 
+    _currentMode;
+    editorMode;
+
+    imageWidthBeforeRotate = 0;
+    imageHeightBeforeRotate = 0;
+    imageIsReady = false;
+    allowChanges = false;
+
+    fabricElements$ = new BehaviorSubject({});
+    isCropping$ = new BehaviorSubject(false);
     initFabricManager() {
     }
 
@@ -15,11 +46,13 @@ class FabricManager {
         try {
             schemeViewController.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
-            this._fabric.isDrawingMode = true;
             this._fabric.freeDrawingBrush.color = 'green';
             this._fabric.freeDrawingBrush.width = 20;
+            this.addFabricEvents();
             //const imgDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline('https://staging.arbostar.com/uploads/clients_files/5082/estimates/34091-E/pdf_estimate_no_34091-E_scheme.png')
             this.renderFabricCanvas(schemeManager.currentScheme);
+            console.log('TRASH: ', this.trash);
+            console.log('canvas: ', this.canvas);
         } catch (e) {
             console.error('Error while canvas initiation: ', e);
         }
@@ -30,7 +63,6 @@ class FabricManager {
             const _fabric = new fabric.Canvas('canvas_C', {
                 selection: false
             });
-            //this.addFabricEvents();
             fabric.Object.prototype.transparentCorners = false;
             fabric.Object.prototype.hasRotatingPoint = false;
             fabric.Object.prototype.objectCaching = false;
@@ -39,6 +71,86 @@ class FabricManager {
         } catch (e) {
             console.error('Error while fabric.Canvas create: ', e);
         }
+    }
+
+    addFabricEvents() {
+        const onObjectOverTrash = (event, cb = () => undefined) => {
+            const trashOffset = {
+                x: this.trash.offsetLeft,
+                y: this.trash.offsetTop - this.paddingImage.top
+            };
+            if (!event.pointer) {
+                return;
+            }
+            if (this.paddingImage.left > 0) {
+                event.pointer.x += this.paddingImage.left;
+            }
+            if (
+                event.pointer.x >= trashOffset.x &&
+                event.pointer.x <= Number(trashOffset.x) + 35 &&
+                event.pointer.y >= trashOffset.y &&
+                event.pointer.y <= trashOffset.y + 35
+            ) {
+                cb();
+            } else this.isMouseOverTrash = false;
+        };
+        this._fabric.on('mouse:down', (event) => {
+            if (this.painting) {
+                return;
+            }
+            if (event.target) {
+                this._fabric.bringToFront(event.target);
+                this.selectedObject = this._fabric.getActiveObject() || {};
+                if (event.target.type === 'i-text') {
+                    this.showStickers = false;
+                    this.painting = false;
+                    this.isITextSelected = true;
+                } else {
+                    this.isITextSelected = false;
+                }
+            } else {
+                this.selectedObject = {};
+                this.isITextSelected = false;
+            }
+        });
+        this._fabric.on('mouse:up', (event) => {
+            if (this.fabricContainsObj(this.rect)) {
+                this.crop();
+            }
+            if (event.target) {
+                onObjectOverTrash(event, () => {
+                    this._fabric.remove(this.selectedObject);
+                    this.isITextSelected = false;
+                    this._fabric.renderAll();
+                    this.isMouseOverTrash = false;
+                    this.selectedObject = {};
+                    this.saveImg();
+                });
+                this.isTrashVisible = false;
+            }
+
+            if (this.painting) this.saveImg();
+        });
+        this._fabric.on('object:moving', (event) => {
+            if (event.target) {
+                this.isTrashVisible = true;
+                onObjectOverTrash(event, () => {
+                    this.isMouseOverTrash = true;
+                });
+            }
+            this.saveImg();
+        });
+        this._fabric.on('object:scaling', (event) => {
+            if (this.isCurrentEditorMode(EDITING_MODES.sticker) || this.isCurrentEditorMode(EDITING_MODES.paint)) {
+                this.saveImg();
+            }
+        });
+        this._fabric.on('object:modified', (event) => {
+            if (event.target) {
+                event.target ._lastAngle = event.target.angle;
+                this.saveImg();
+            }
+        });
     }
 
     renderFabricCanvas(file, tries = 3) {
@@ -53,15 +165,15 @@ class FabricManager {
             return;
         }
         schemeViewController.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
-        // this.imageIsReady = false;
-        this.editedImage = file;
+        this.imageIsReady = false;
+        this.editedScheme = file;
         const img = new Image();
         img.onload = () => {
             fabric.Image.fromURL(
                 img.src,
                 async (oImg) => {
                     this.setFabricBackgroundImage(oImg);
-                    this.angleAllowsRotation() && (await this.rotateBackgroundImage(Number(this.editedImage.elements.deg)));
+                    this.angleAllowsRotation() && (await this.rotateBackgroundImage(Number(this.editedScheme.elements.deg)));
                     if (file.elements) {
                         this.resizeObjectsOnInit(file.elements);
                         await this.addObjectsOnFabricInit(file.elements);
@@ -69,9 +181,8 @@ class FabricManager {
                     this._fabric.renderAll();
                     setTimeout(() => {
                         window.addEventListener('resize', () => this.resize())
-                        // this.saveImg(false, true);
-                        //
-                        // this.getPadding();
+                        this.saveImg(false, true);
+                        this.getPadding();
                     }, 100);
                 },
                 {
@@ -144,13 +255,119 @@ class FabricManager {
         }
     }
 
+    getPadding() {
+        // empty space between fabric canvas and .gallery-inner borders
+        this.paddingImage = {
+            top: (this.container.offsetHeight - this._fabric.getHeight()) / 2,
+            left: (this.container.offsetWidth - this._fabric.getWidth()) / 2
+        };
+
+        this.trash.style.bottom = `${this.paddingImage.top + 10}px`;
+    }
     // fabric image operations
-    addText(){
-        console.log('addText!');
+    addText() {
+        this.deleteCrop();
+        this.showStickers = false;
+        this.endPaint();
+        const text = new fabric.IText('Comment', {
+            strokeWidth: 2,
+            stroke: '#000000',
+            fill: this.text_color,
+            fontSize: this.text_size,
+            fontFamily: 'Roboto',
+            fontWeight: 'bold'
+        });
+        text.on('changed', () => {
+            if (!this.rect) {
+                this.saveImg();
+            }
+        });
+        this._fabric.add(text);
+        this._fabric.setActiveObject(text);
+        text.enterEditing();
+        text.setSelectionStart(0);
+        text.setSelectionEnd((text.text || '').length);
+        text.center();
+        this.isITextSelected = true;
+        this.saveImg();
     }
     toggleStickers(){}
-    togglePaintMode() {}
+    togglePaintMode() {
+        this.deleteCrop();
+        this.setEditorMode(EDITING_MODES.paint);
+        this.isITextSelected = false;
+        this.showStickers = false;
+        this.painting = !this.painting;
+        this._fabric.isDrawingMode = this.painting;
+        this._fabric.freeDrawingBrush.color = this.paintColor;
+        this._fabric.freeDrawingBrush.width = this.brushSize;
+        const timeout = setTimeout(() => {
+            if (this.brushSlider) {
+                this.brushSlider.style.setProperty('--slider-color', this.paintColor);
+            }
+
+            clearTimeout(timeout);
+        }, 20);
+    }
+
+    changeBrushSize() {
+        this._fabric.freeDrawingBrush.width = this.brushSize;
+    }togglePaintMode() {}
+    endPaint() {
+        this.setEditorMode(EDITING_MODES.pending);
+
+        this.painting = false;
+
+        //this.paintColor = '';
+
+        this._fabric.isDrawingMode = this.painting;
+    }
     startCrop() {}
+    crop() {
+        if (!this.rect) {
+            return;
+        }
+        this.setEditorMode(EDITING_MODES.crop); ////////////////////
+        const x = this.rect.left;
+        const y = this.rect.top;
+        let w = 0;
+        let h = 0;
+        if (this.rect.width && this.rect.scaleX) {
+            w = this.rect.width * this.rect.scaleX;
+        }
+        if (this.rect.height && this.rect.scaleY) {
+            h = this.rect.height * this.rect.scaleY;
+        }
+        this._fabric.remove(...this._fabric.getObjects());
+        this.isCropping$.next(this._fabric.getObjects().length > 0);
+        const multiplier = this.calculateScaleMultiplier(w, h);
+        const cropOptions = {
+            left: x,
+            top: y,
+            width: w,
+            height: h,
+            multiplier
+        };
+        const cropDataUrl = this._fabric.toDataURL(cropOptions);
+        fabric.Image.fromURL(
+            cropDataUrl,
+            (oImg) => {
+                this.setFabricBackgroundImage(oImg);
+                this.saveImg(true);
+                this.setCrop();
+            },
+            {
+                crossOrigin: 'anonymous'
+            }
+        );
+    }
+    deleteCrop() {
+        if (this.fabricContainsObj(this.rect)) {
+            this._fabric.remove(this.rect);
+        }
+
+        this.isCropping$.next(false);
+    }
     rotateFabric(rotateAngle) {}
     async rotateBackgroundImage(deg) {
         return new Promise((resolve, reject) => {
@@ -182,12 +399,69 @@ class FabricManager {
         });
     }
     undo() {}
+    saveImg() {
+        new Promise(
+            resolve => setTimeout(() => resolve(), 50)
+        ).then(
+            async () => {
+                if(this._fabric && this.editedScheme && this.editedScheme.url) {
+                        this.stringifyImage();
+                        this.editedScheme.objects = this.serializedCanvas;
+                        const multiplier = this.calculateScaleMultiplier();
+                        await new Promise(resolve => {
+                            const format = this.editedScheme.ext === 'png' ? 'png' : 'jpeg';
+                            this.editedScheme.editedUrl = this._fabric.toDataURL({format, multiplier});
+                            resolve();
+                        });
+                        this.imageWidthBeforeRotate = Math.max(this._fabric.width || 0, Number(this.canvas.clientWidth));
+                        this.imageHeightBeforeRotate = Math.max(this._fabric.height || 0, Number(this.canvas.clientHeight));
+                        this.imageIsReady = true;
+                        this.allowChanges = true;
+                        if (cropAgain) {
+                            this.startCrop();
+                        }
+                }
+
+            }
+        )
+    }
+    stringifyImage() {
+        const elements = this.getSerializedObjects();
+        this.fabricElements$.next(elements);
+    }
+    getSerializedObjects() {
+        const serializedCanvas = this._fabric.toJSON(['width', 'height']);
+        serializedCanvas.objects.map((object) => {
+            if (Object.prototype.hasOwnProperty.call(object, '_lastAngle')) {
+                object.angle = object._lastAngle;
+                object._lastAngle = null;
+            }
+        });
+        return {
+            version: serializedCanvas.version,
+            objects: { version: serializedCanvas.version, objects: serializedCanvas.objects },
+            deg: this.normalizeAngle(Number(this.editedScheme?.objects?.deg), { allowNegative: true }),
+            width: serializedCanvas.width,
+            height: serializedCanvas.height
+        };
+    }
     // helpers
+    normalizeAngle(angle, opts) {
+        const baseAngle = opts?.fullCycle || 360;
+        const halfBase = baseAngle / 2;
+        let result = angle;
+        if (Math.abs(angle) >= baseAngle) {
+            const cycles = Math.floor(angle / baseAngle);
+            result = angle - cycles * baseAngle;
+        }
+        opts?.allowNegative && (result = Math.abs(result) > halfBase ? (baseAngle - Math.abs(result)) * -Math.sign(result) : result);
+        return result;
+    }
     angleAllowsRotation() {
-        if (!this.editedImage.elements) {
+        if (!this.editedScheme.elements) {
             return false;
         }
-        const {deg} = this.editedImage.elements;
+        const {deg} = this.editedScheme.elements;
         return typeof deg !== 'undefined' && deg != null && deg !== 0 && deg !== 360;
     }
 
@@ -232,6 +506,16 @@ class FabricManager {
         this.backImage = null;
     }
 
+    fabricContainsObj(obj) {
+        return this._fabric?.contains(obj) === true;
+    }
+
+    setEditorMode(mode) {
+        this._currentMode = EDITING_MODES[mode.toLowerCase()];
+    }
+    isCurrentEditorMode(mode) {
+        return mode === this.editorMode;
+    }
     colors = Object.freeze(['#2f3640', '#f5f6fa', '#e1b12c', '#0097e6', '#c23616', '#8c7ae6', '#44bd32', '#718093', '#192a56']);
 
     _stickers = Object.freeze([

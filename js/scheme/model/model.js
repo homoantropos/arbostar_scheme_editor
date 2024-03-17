@@ -1,5 +1,3 @@
-import {config} from "../config/config";
-
 class SchemeModelService {
     _defaultScheme = {
         // when scheme is downloaded

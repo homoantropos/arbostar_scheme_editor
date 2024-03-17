@@ -1,0 +1,49 @@
+/* Breakpoints map with keys */
+$xxs: 0;
+$xs: 320px;
+$sm: 375px;
+$md: 700px;
+$lg: 1024px;
+$xl: 1366px;
+$xxl: 1440px;
+$breakpoints-map: (
+        xxs: $xxs,
+        xs: $xs,
+        sm: $sm,
+        md: $md,
+        lg: $lg,
+        xl: $xl,
+        xxl: $xxl
+) !default;
+/* Maximum breakpoint width (no query for the largest breakpoint).*/
+/* Example: @include bp-max(md) { content }*/
+@mixin bp-max($name, $breakpoints: $breakpoints-map) {
+  $max: breakpoint-max($name, $breakpoints);
+  @if $max {
+    @media (max-width: $max) {
+      @content;
+    }
+  }
+  @else {
+    @content;
+  }
+}
+
+/* Helper functions for mixins */
+
+/* Name of the next breakpoint, or null for the last breakpoint.*/
+@function breakpoint-next($name, $breakpoints: $breakpoints-map, $breakpoint-names: map-keys($breakpoints)) {
+  $n: index($breakpoint-names, $name);
+  @return if($n < length($breakpoint-names), nth($breakpoint-names, $n + 1), null);
+}
+
+/* Minimum breakpoint width. Null for the smallest (first) breakpoint.*/
+@function breakpoint-min($name, $breakpoints: $breakpoints-map) {
+  $min: map-get($breakpoints, $name);
+  @return if($min != 0, $min, null);
+}
+/* Maximum breakpoint width. Null for the largest (last) breakpoint. The maximum value is calculated as the minimum of the next one less 0.1.*/
+@function breakpoint-max($name, $breakpoints: $breakpoints-map) {
+  $next: breakpoint-next($name, $breakpoints);
+  @return if($next, breakpoint-min($next, $breakpoints) - 0.1, null);
+}

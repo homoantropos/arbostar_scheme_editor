@@ -21,7 +21,7 @@
                     <img alt="scheme" id="schemePreview" />
                 </div>
                 <div class="media__wrap canvas__container">
-                    <div class="gallery-tools"">
+                    <div class="gallery-tools">
                         <!-- cropper control buttons -->
                         <i class="icon-type"></i>
                         <i class="icon-image"></i>
@@ -33,6 +33,24 @@
                     </div>
                     <div class="canvas__wrapper">
                         <canvas id="canvas_C"></canvas>
+                    </div>
+                    <!-- brush size slider -->
+                    <div class="size-slider-box _left">
+                        <input
+                                class="slider-brush"
+                                id="brush-slider"
+                                type="range"
+                                min="1"
+                                max="30"
+                                value="4"
+                                #brushSlider
+                        />
+                        <div class="range-bg"></div>
+                    </div>
+
+                    <!-- remove element bin -->
+                    <div id="trash" class="ei-bin">
+                        <i class="icon-trash"></i>
                     </div>
                 </div>
             </div>

@@ -10,3 +10,13 @@ export const config = {
         flex: 'flex'
     }
 }
+
+export const EDITING_MODES = Object.freeze({
+    pending: 'PENDING',
+    paint: 'PAINT',
+    crop: 'CROP',
+    sticker: 'STICKER',
+    text: 'TEXT',
+    rotate: 'ROTATE',
+    aboveTrash: 'ABOVETRASH'
+});
