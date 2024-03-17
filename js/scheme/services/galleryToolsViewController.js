@@ -368,7 +368,6 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        console.log("INPUT BRUSH!");
                     }
                 },
                 {

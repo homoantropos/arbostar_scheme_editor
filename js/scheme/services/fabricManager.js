@@ -54,7 +54,6 @@ class FabricManager {
             this._fabric.freeDrawingBrush.color = 'green';
             this._fabric.freeDrawingBrush.width = 20;
             this.addFabricEvents();
-            console.log('CURRENT SCHEME INIT: ', schemeManager.currentScheme);
             this.renderFabricCanvas(schemeManager.currentScheme);
         } catch (e) {
             console.error('Error while canvas initiation: ', e);
