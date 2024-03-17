@@ -1,3 +1,5 @@
+import {config} from "../config/config";
+
 class SchemeModelService {
     _defaultScheme = {
         // when scheme is downloaded
@@ -67,7 +69,8 @@ class SchemeModelService {
         return !!backEndResponse && backEndResponse.hasOwnProperty('data') ? backEndResponse.data : backEndResponse;
     }
 
-    loaderArgValidate(loaderArgumentsObj) {
+    // to be sure viewNavigationRouter$ gets proper arg
+    viewNavigatorArgValid(loaderArgumentsObj) {
         return !!loaderArgumentsObj
         && typeof loaderArgumentsObj === 'object'
         && Object.keys(loaderArgumentsObj).length === 2
@@ -76,6 +79,14 @@ class SchemeModelService {
         && typeof loaderArgumentsObj['load'] === 'boolean'
         && typeof loaderArgumentsObj['targetElementName'] === 'string'
     }
+    // to be sure view config element has proper shape
+    uiConfigElementObjValid(uiConfigElementObj) {
+        return !!uiConfigElementObj
+            && typeof uiConfigElementObj === 'object'
+            && Object.keys(uiConfigElementObj).length >= 7
+            && Object.keys(uiConfigElementObj).map(key => Array.every(this.uiConfigElementKeys.includes(key)))
+    }
+    uiConfigElementKeys = ['targetElement', 'isFlex', 'display', 'hide', 'elements', 'currentButtons', 'listeners' ]
 }
 
 export default new SchemeModelService();

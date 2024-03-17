@@ -1,4 +1,4 @@
-import viewController from "./viewController.js";
+import schemeViewController from "./schemeViewController.js";
 import schemeManager from "./schemeManager.js";
 import debugMessenger from "../utils/debugMessageLogger.js"
 
@@ -13,7 +13,7 @@ class FabricManager {
     // canvas initialisation and operation
     async initCanvas() {
         try {
-            viewController.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
+            schemeViewController.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
             this._fabric.isDrawingMode = true;
             this._fabric.freeDrawingBrush.color = 'green';
@@ -52,7 +52,7 @@ class FabricManager {
             debugMessenger.logDebug(!file ? 'file' : 'file.original');
             return;
         }
-        viewController.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
+        schemeViewController.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
         // this.imageIsReady = false;
         this.editedImage = file;
         const img = new Image();
@@ -94,7 +94,7 @@ class FabricManager {
     }
 
     setFabricSizesDueBackImg() {
-        const galleryInner = viewController.getSchemeUiElement('canvasContainer').targetElement;
+        const galleryInner = schemeViewController.getSchemeUiElement('canvasContainer').targetElement;
         const {clientWidth, clientHeight} = galleryInner;
         this.backImage.scaleToHeight(clientHeight);
         if (this.backImage.getScaledWidth() > clientWidth) {
@@ -108,7 +108,6 @@ class FabricManager {
         if (!this._fabric) {
             return;
         }
-        console.log('working!')
         const oldWidth = this._fabric.width;
         if (!oldWidth) return;
         this.setFabricSizesDueBackImg();
@@ -146,7 +145,9 @@ class FabricManager {
     }
 
     // fabric image operations
-    addText(){}
+    addText(){
+        console.log('addText!');
+    }
     toggleStickers(){}
     togglePaintMode() {}
     startCrop() {}

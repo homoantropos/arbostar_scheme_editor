@@ -3,10 +3,12 @@ import mapManager from "./mapManager.js";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
 import model from "../model/model.js";
 import {config} from "../config/config.js";
+import galleryToolsViewController from "./galleryToolsViewController.js";
+import {setUIElementsWithListeners, setElementsVisibility, getUiElement, getUiElementsObjKeys} from "../utils/viewManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
-class ViewController {
+class SchemeViewController {
     constructor() { }
 
     showEditor(divToggle) {
@@ -42,24 +44,10 @@ class ViewController {
         });
     }
     initViewController() {
-        this.schemeUiElementsKeys.map(
-            key => {
-                let element = this.getSchemeUiElement(key);
-                let {elementClass, listeners} = element;
-                element.targetElement = document.getElementsByClassName(elementClass)[0];
-                listeners.length && listeners.forEach(
-                    listener => {
-                        if (element.targetElement) {
-                            element.targetElement.addEventListener(listener.eventName, listener.callback);
-                            this.setElementVisibility(key, element.hide);
-                        }
-                    }
-                )
-            }
-        );
+        setUIElementsWithListeners(this.schemeUiElements);
         this.viewNavigationRouter$.pipe(takeUntil(this.destroy$)).subscribe({
                 next: (opts) => {
-                    if(!model.loaderArgValidate(opts)) {
+                    if(!model.viewNavigatorArgValid(opts)) {
                         debugMessageLogger.logDebug('setLoader should be such object { load: boolean, targetElementName: string }');
                         return;
                     }
@@ -89,23 +77,16 @@ class ViewController {
         }
     }
     // elements visibility
-    setElementVisibility(schemeElementUiName, hide) {
-        const schemeUiElement = this.getSchemeUiElement(schemeElementUiName);
-        if (!schemeUiElement.targetElement) {
-            debugMessageLogger.logDebug('Target element is empty!');
-            return;
-        }
-        schemeUiElement.hide = hide;
-        schemeUiElement.display = hide ? config.display.none : config.display.block;
-        schemeUiElement.targetElement && (schemeUiElement.targetElement.style.display = schemeUiElement.hide ? config.display.none : config.display.block);
+    setSchemeUIElementVisibility(schemeElementUiName, hide) {
+        setElementsVisibility(this.schemeUiElements, schemeElementUiName, hide);
     }
 
     showElement(schemeElementUiName) {
-        this.setElementVisibility(schemeElementUiName, false);
+        this.setSchemeUIElementVisibility(schemeElementUiName, false);
     }
 
     hideElement(schemeElementUiName) {
-        this.setElementVisibility(schemeElementUiName, true);
+        this.setSchemeUIElementVisibility(schemeElementUiName, true);
     }
 
     showElements(namesElementsToShowArray) {
@@ -148,14 +129,20 @@ class ViewController {
     }
 
     // scheme dom elements and config
+    // getUiElement(uiConfigObj, elementName) {
+    //     return uiConfigObj[elementName];
+    // }
     getSchemeUiElement(elementName) {
-        return this.schemeUiElements[elementName];
+        return getUiElement(this.schemeUiElements, elementName);
+    }
+
+    getUiElementsObjKeys(uiElementsKeysObj) {
+        return Object.keys(uiElementsKeysObj);
     }
 
     get schemeUiElementsKeys() {
-        return Object.keys(this.schemeUiElements);
+        return getUiElementsObjKeys(this.schemeUiElements);
     }
-
     get schemeButtons() {
         return this.schemeUiElementsKeys.filter(key => key.includes('Button'))
     }
@@ -297,6 +284,7 @@ class ViewController {
                     eventName: 'click',
                     callback: async ($event) => {
                         $event.stopPropagation();
+                        galleryToolsViewController.initTools();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
                         await fabricManager.initCanvas();
                         this.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
@@ -397,4 +385,4 @@ class ViewController {
     })
 }
 
-export default new ViewController();
+export default new SchemeViewController();

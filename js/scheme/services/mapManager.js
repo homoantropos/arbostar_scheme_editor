@@ -35,7 +35,8 @@ class MapManager {
                     width: element.scrollWidth,
                     height: element.scrollHeight,
                     x: window.pageXOffset,
-                    y: window.pageYOffset
+                    y: window.pageYOffset,
+                    willReadFrequently: true
                 }).then(async canvas => {
                     preview.src = canvas.toDataURL();
                     schemeManager.initSchemeWithMapScreenShot(canvas.toDataURL());
