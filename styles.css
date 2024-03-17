@@ -1430,6 +1430,11 @@ body {
   width: 100%;
   height: 95%;
 }
+.scheme__main.back__drop .scheme__wrapper .content__wrapper .preview__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .scheme__main.back__drop .scheme__wrapper .content__wrapper .preview__container img {
   width: 100%;
   height: auto;

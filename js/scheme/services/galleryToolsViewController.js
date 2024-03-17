@@ -200,6 +200,8 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        fabricManager.startCrop();
+                        hideElement(this.galleryToolsUiElements, 'stickers');
                         this.setSelected();
                     }
                 }

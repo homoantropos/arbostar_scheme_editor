@@ -2,6 +2,7 @@ import schemeViewController from "./schemeViewController.js";
 import schemeManager from "./schemeManager.js";
 import debugMessenger from "../utils/debugMessageLogger.js"
 import { EDITING_MODES } from "../config/config.js";
+import {getSafeCopy} from "../utils/safeJsonParser.js";
 
 const { BehaviorSubject } = rxjs;
 
@@ -20,6 +21,8 @@ class FabricManager {
         left: 0
     };
     rect;
+    fabricHeight;
+    fabricWidth;
     isShowPalette = false;
     isTrashVisible = false;
     isMouseOverTrash = false;
@@ -47,12 +50,11 @@ class FabricManager {
     // canvas initialisation and operation
     async initCanvas() {
         try {
-            schemeViewController.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
             this._fabric.freeDrawingBrush.color = 'green';
             this._fabric.freeDrawingBrush.width = 20;
             this.addFabricEvents();
-            //const imgDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline('https://staging.arbostar.com/uploads/clients_files/5082/estimates/34091-E/pdf_estimate_no_34091-E_scheme.png')
+            console.log('CURRENT SCHEME INIT: ', schemeManager.currentScheme);
             this.renderFabricCanvas(schemeManager.currentScheme);
         } catch (e) {
             console.error('Error while canvas initiation: ', e);
@@ -370,7 +372,40 @@ class FabricManager {
 
         this._fabric.isDrawingMode = this.painting;
     }
-    startCrop() {}
+    startCrop() {
+        if (this.fabricContainsObj(this.rect)) {
+            this._fabric.remove(this.rect);
+            this.isCropping$.next(false);
+            return;
+        }
+        if (this.showStickers) {
+            this.showStickers = false;
+        }
+        if (this.painting) {
+            this.togglePaintMode();
+        }
+        this.fabricHeight = this._fabric.height || 0;
+        this.fabricWidth = this._fabric.width || 0;
+        this.rect = new fabric.Rect({
+            fill: 'rgb(255, 255, 255, 0.2)',
+            originX: 'left',
+            originY: 'top',
+            borderColor: '#242424',
+            borderScaleFactor: 3,
+            borderDashArray: [3, 3],
+            cornerColor: '#242424',
+            cornerSize: 20,
+            width: this._fabric.width,
+            height: this._fabric.height,
+            lockScalingFlip: true,
+            lockMovementX: true,
+            lockMovementY: true
+        });
+        this.isCropping$.next(this._fabric.getObjects().length > 0);
+        this._fabric.add(this.rect);
+        this._fabric.setActiveObject(this.rect);
+        this._fabric.renderAll();
+    }
     crop() {
         if (!this.rect) {
             return;
@@ -409,6 +444,11 @@ class FabricManager {
             }
         );
     }
+    setCrop() {
+        const copy = JSON.parse(JSON.stringify(this.editedScheme));
+        delete copy.crop;
+        this.editedScheme.crop?.push(copy);
+    }
     deleteCrop() {
         if (this.fabricContainsObj(this.rect)) {
             this._fabric.remove(this.rect);
@@ -432,9 +472,10 @@ class FabricManager {
         try {
             this.resetPaint();
             this.imageIsReady = false;
-            if (this.editedScheme.objects) {
-                const fullDeg = this.editedScheme.objects.deg ? this.editedScheme.objects.deg + deg : deg;
-                this.editedScheme.objects.deg = this.normalizeAngle(fullDeg);
+            if (this.editedScheme.elements) {
+                if(!this.editedScheme.elements.deg || Number.isNaN(this.editedScheme.elements.deg)) this.editedScheme.elements.deg = 0;
+                const fullDeg = this.editedScheme.elements.deg ? this.editedScheme.elements.deg + deg : deg;
+                this.editedScheme.elements.deg = this.normalizeAngle(fullDeg);
             }
             const currentObjects = await this.cloneFabricObjectsAndRemoveIfNeeded(true);
             if (this._fabric?.backgroundImage && typeof this._fabric.backgroundImage !== 'string') {
@@ -462,7 +503,7 @@ class FabricManager {
                             });
                             setTimeout(() => {
                                 this.imageIsReady = true;
-                            });
+                             });
                             this.saveImg();
                             this.getPadding();
                         },
@@ -590,14 +631,16 @@ class FabricManager {
             resolve => setTimeout(() => resolve(), 50)
         ).then(
             async () => {
-
                 if(this._fabric && this.editedScheme) {
                         this.stringifyImage();
-                        this.editedScheme.objects = this.serializedCanvas;
+                        this.editedScheme.elements = this.getSerializedObjects();
+                        this.editedScheme.width = this.editedScheme.elements.width;
+                        this.editedScheme.height = this.editedScheme.elements.height;
                         const multiplier = this.calculateScaleMultiplier();
                         await new Promise(resolve => {
                             const format = this.editedScheme.ext === 'png' ? 'png' : 'jpeg';
                             this.editedScheme.editedUrl = this._fabric.toDataURL({format, multiplier});
+                            schemeManager.setCurrentScheme(getSafeCopy(this.editedScheme));
                             resolve();
                         });
                         this.imageWidthBeforeRotate = Math.max(this._fabric.width || 0, Number(this.canvas.clientWidth));
@@ -627,7 +670,7 @@ class FabricManager {
         return {
             version: serializedCanvas.version,
             objects: { version: serializedCanvas.version, objects: serializedCanvas.objects },
-            deg: this.normalizeAngle(Number(this.editedScheme?.objects?.deg), { allowNegative: true }),
+            deg: this.normalizeAngle(Number(this.editedScheme?.elements?.deg), { allowNegative: true }),
             width: serializedCanvas.width,
             height: serializedCanvas.height
         };

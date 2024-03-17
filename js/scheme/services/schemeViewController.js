@@ -187,6 +187,7 @@ class SchemeViewController {
         previewContainer: {
             elementClass: 'preview__container',
             targetElement: undefined,
+            isFlex: true,
             display: config.display.none,
             hide: true,
             elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closePreviewButton'],
@@ -266,6 +267,7 @@ class SchemeViewController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
+                        document.querySelector('#schemePreview').src = fabricManager.editedScheme.editedUrl;
                         setTimeout(() => this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'}), 1000)
                     }
                 }
