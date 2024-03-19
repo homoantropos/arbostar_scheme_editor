@@ -18,3 +18,13 @@ export function initSchemeComponent() {
 
 
 
+/*TO DO
+LOGIC
+1. add figure marker to stickers
+2. add trash bin functionality
+
+VIEW
+1. approve proper view
+2. set input slider color along with paintColor prop
+
+ */
