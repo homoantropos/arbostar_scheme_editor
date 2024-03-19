@@ -278,9 +278,13 @@ class SchemeViewController {
                     callback: async ($event) => {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
-                        await schemeManager.saveScheme();
-                        document.querySelector('#schemePreview').src = fabricManager.editedScheme.editedUrl;
-                        setTimeout(() => this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'}), 1000)
+                        const response = await schemeManager.saveScheme();
+                        if(response && response.status) {
+                            this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
+                        } else {
+                            this.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
+                            alert('Something went wrong, can\'t save scheme');
+                        }
                     }
                 }
             ]
@@ -300,7 +304,7 @@ class SchemeViewController {
                         $event.stopPropagation();
                         galleryToolsViewController.initTools();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
-                        if(schemeEditorAPI.importDataToSchemeEditor('estimate').scheme.result) {
+                        if(schemeManager.currentEstimate.scheme?.result) {
                             await schemeManager.fetchScheme(config.schemeUrl);
                         }
                         await fabricManager.initCanvas();
@@ -395,8 +399,17 @@ class SchemeViewController {
                     eventName: 'click',
                     callback: async ($event) => {
                         $event.stopPropagation();
-                        await mapManager.initMap();
-                        this.showElements(this.getSchemeUiElement('mapContainer').elements);
+                        this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
+                        const { leadId, id, scheme } = schemeManager.currentEstimate;
+                        const response = await schemeManager.deleteScheme({ lead_id: leadId, id, file: scheme?.result });
+                        if(response) {
+                            await mapManager.initMap();
+                            this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
+                        } else {
+                            this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
+                            alert('Something went wrong, can\'t remove scheme');
+                        }
+
                     }
                 }
             ]

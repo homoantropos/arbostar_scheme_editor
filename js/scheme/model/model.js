@@ -1,5 +1,6 @@
 class SchemeModelService {
     _defaultScheme = {
+        result: '',
         // when scheme is downloaded
         original: '',
         elements: {
@@ -22,7 +23,8 @@ class SchemeModelService {
     }
     objectIsScheme(candidate) {
         if (typeof candidate !== 'object' || candidate == null) return false;
-        return Object.keys(candidate).length === 5
+        return Object.keys(candidate).length === 6
+            && candidate.hasOwnProperty('result')
             && candidate.hasOwnProperty('original')
             && candidate.hasOwnProperty('elements')
             && candidate.hasOwnProperty('dataUrl')

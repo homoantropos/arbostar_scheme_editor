@@ -4,6 +4,9 @@ import schemeManager from "./schemeManager.js";
 class PreviewManager {
     currentImage = null;
     initSchemePreview(schemeUrl) {
+        this.setPreviewSrc(schemeUrl);
+    }
+    setPreviewSrc(schemeUrl) {
         let preview = document.querySelector("#schemePreview");
         if(schemeUrl) {
             schemeUrl = this.getUrlToPreview(schemeUrl);
@@ -14,8 +17,6 @@ class PreviewManager {
             preview.style.display = config.display.none;
         }
     }
-
-
     async getSchemeAsDataUrlIfOnline(schemeUrl) {
         try {
             if(navigator && !navigator.onLine) return;
@@ -117,7 +118,7 @@ class PreviewManager {
     }
 
     getFullPath(serverFilePath) {
-        return this.isImgUrl(serverFilePath) ? `${config.url}${serverFilePath}` : serverFilePath;
+        return this.isImgUrl(serverFilePath) ? serverFilePath.startsWith('http') ? serverFilePath : `${config.url}${serverFilePath}` : serverFilePath;
     }
 
     isImgUrl(candidateUrl) {

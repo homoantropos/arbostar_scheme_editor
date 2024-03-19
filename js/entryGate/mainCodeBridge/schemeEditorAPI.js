@@ -13,7 +13,7 @@ class MainCodebaseBridge {
         }
     }
     exportEditedSchemeToMainProject() {
-        return schemeManager.currentScheme;
+        return schemeManager.schemeOutput$; // just subscribe to have fresh scheme state outside schemeManagerComponent
     }
 
     getEditedSchemeCopy() {

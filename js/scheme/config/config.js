@@ -11,7 +11,8 @@ export const config = {
         flex: 'flex'
     },
     mockData: {
-        leadId: 35129
+        leadId: 35130,
+        estimateId: 14864
     }
 }
 

@@ -40,12 +40,26 @@ export async function retrieve(url) {
     }
 }
 
-export async function upldateScheme(schemePayload, bodyObj) {
-
+export async function upldateScheme(schemePayload, url) {
+    return saveCreatedScheme(schemePayload, url);
 }
 
-export async function deleteScheme(schemeUrlOrID) {
+export async function deleteScheme(url, {lead_id, id, file}) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({lead_id, id, file})
+        });
 
+        if (!response.ok) {
+            throw response;
+        }
+        const data = await response.json();
+        return data;
+    } catch(e) {
+        console.log('Error while http request: ', e);
+    }
 }
 export async function retrieveMockImage() {
     try {
