@@ -56,6 +56,7 @@ class SchemeViewController {
     destroyViewController() {
         this.destroy$.next();
         this.destroy$.complete();
+        this.navigatorSunscribtion = null;
     }
     // navigation between views
     viewNavigationRouter$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
@@ -200,8 +201,8 @@ class SchemeViewController {
             isFlex: true,
             display: config.display.none,
             hide: true,
-            elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closePreviewButton', 'deleteButton'],
-            currentButtons: ['editButton', 'closePreviewButton', 'deleteButton'],
+            elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closeMapButton', 'deleteButton'],
+            currentButtons: ['editButton', 'closeMapButton', 'deleteButton'],
             listeners: [
                 {
                     eventName: 'click',
