@@ -5,59 +5,53 @@ import model from "../model/model.js";
 import {config} from "../config/config.js";
 import galleryToolsViewController from "./galleryToolsViewController.js";
 import {setUIElementsWithListeners, setElementsVisibility, getUiElement, getUiElementsObjKeys} from "../utils/viewManager.js";
+import schemeManager from "./schemeManager.js";
+import schemeEditorAPI from "../../entryGate/mainCodeBridge/schemeEditorAPI.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 class SchemeViewController {
     constructor() { }
 
-    showEditor(divToggle) {
-        if(!divToggle) return;
-        divToggle.style.display = config.display.flex;
-        divToggle.classList.add('enter-animation');
-        divToggle.classList.remove('leave-animation');
-        this.initViewController();
+    showSchemeComponent(schemeDivEl) {
+        schemeManager.initSchemeComponent().then(
+            () => {
+                this.initViewController();
+                if(!schemeDivEl) return;
+                schemeDivEl.style.display = config.display.flex;
+                schemeDivEl.classList.add('enter-animation');
+                schemeDivEl.classList.remove('leave-animation');
+            }
+        );
     }
 
-    hideEditor(divToggle) {
-        divToggle.classList.add('leave-animation');
-        divToggle.classList.remove('enter-animation');
-        divToggle.addEventListener('animationend', () => {
-            if(divToggle.classList.contains('leave-animation')) {
-                divToggle.style.display = config.display.none;
+    hideSchemeComponent(schemeDivEl) {
+        schemeDivEl.classList.add('leave-animation');
+        schemeDivEl.classList.remove('enter-animation');
+        schemeDivEl.addEventListener('animationend', () => {
+            if(schemeDivEl.classList.contains('leave-animation')) {
+                schemeDivEl.style.display = config.display.none;
             }
         }, {once: true});
         this.destroyViewController();
     }
     setToggleButtonOnProjectStart(event) {
         event.stopPropagation();
-        const toggleButton = document.getElementById('toggleSchemeButton');
-        const divToggle = document.querySelector('.scheme__main.back__drop');
+        const toggleButton = document.querySelector('#toggleSchemeButton');
+        const divToggle = document.querySelector('#schemeComponent');
 
         toggleButton.addEventListener('click', () => {
             const displayStyle = getComputedStyle(divToggle).display;
             if(displayStyle === config.display.none) {
-                this.showEditor(divToggle)
+                this.showSchemeComponent(divToggle)
             } else {
-                this.hideEditor(divToggle);
+                this.hideSchemeComponent(divToggle);
             }
         });
     }
     initViewController() {
         setUIElementsWithListeners(this.schemeUiElements);
-        this.viewNavigationRouter$.pipe(takeUntil(this.destroy$)).subscribe({
-                next: (opts) => {
-                    if(!model.viewNavigatorArgValid(opts)) {
-                        debugMessageLogger.logDebug('setLoader should be such object { load: boolean, targetElementName: string }');
-                        return;
-                    }
-                    this.changeActiveView(opts.load, opts.targetElementName)
-                },
-                error: (error) => console.error('Error while loader set: ', error)
-            }
-        );
-        this.viewNavigationRouter$.next({load: true, targetElementName: 'mapContainer'});
-        mapManager.initMap().then(() => this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'}));
+        this.initNavigatorSubscription();
     }
     destroyViewController() {
         this.destroy$.next();
@@ -66,6 +60,22 @@ class SchemeViewController {
     // navigation between views
     viewNavigationRouter$ = new BehaviorSubject({load: false, targetElementName: 'mapContainer'});
     destroy$ = new Subject();
+    navigatorSunscribtion = null;
+    initNavigatorSubscription() {
+        if(!this.navigatorSunscribtion) {
+            this.navigatorSunscribtion =  this.viewNavigationRouter$.pipe(takeUntil(this.destroy$)).subscribe({
+                    next: ({load, targetElementName}) => {
+                        if(!model.viewNavigatorArgValid({load, targetElementName})) {
+                            debugMessageLogger.logDebug('setLoader should be such object { load: boolean, targetElementName: string }');
+                            return;
+                        }
+                        this.changeActiveView(load, targetElementName);
+                    },
+                    error: (error) => console.error('Error while loader set: ', error)
+                }
+            );
+        }
+    }
     changeActiveView(load, targetElementName) {
         if (load) {
             const buttonsNames = this.getSchemeUiElement(targetElementName)['currentButtons'];
@@ -190,8 +200,8 @@ class SchemeViewController {
             isFlex: true,
             display: config.display.none,
             hide: true,
-            elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closePreviewButton'],
-            currentButtons: ['editButton', 'closePreviewButton'],
+            elements: ['schemeWrapper', 'previewContainer', 'editButton', 'closePreviewButton', 'deleteButton'],
+            currentButtons: ['editButton', 'closePreviewButton', 'deleteButton'],
             listeners: [
                 {
                     eventName: 'click',
@@ -264,9 +274,10 @@ class SchemeViewController {
             listeners: [
                 {
                     eventName: 'click',
-                    callback: ($event) => {
+                    callback: async ($event) => {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
+                        await schemeManager.saveScheme();
                         document.querySelector('#schemePreview').src = fabricManager.editedScheme.editedUrl;
                         setTimeout(() => this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'}), 1000)
                     }
@@ -288,6 +299,9 @@ class SchemeViewController {
                         $event.stopPropagation();
                         galleryToolsViewController.initTools();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
+                        if(schemeEditorAPI.importDataToSchemeEditor('estimate').scheme.result) {
+                            await schemeManager.fetchScheme(config.schemeUrl);
+                        }
                         await fabricManager.initCanvas();
                         this.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
                     }
@@ -340,8 +354,9 @@ class SchemeViewController {
             listeners: [
                 {
                     eventName: 'click',
-                    callback: ($event) => {
+                    callback: async ($event) => {
                         $event.stopPropagation();
+                        await mapManager.initMap();
                         this.showElements(this.getSchemeUiElement('mapContainer').elements);
                     }
                 }
@@ -361,7 +376,7 @@ class SchemeViewController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         const divToggle = document.querySelector('.scheme__main.back__drop');
-                        this.hideEditor(divToggle);
+                        this.hideSchemeComponent(divToggle);
                     }
                 }
             ]
@@ -377,9 +392,10 @@ class SchemeViewController {
             listeners: [
                 {
                     eventName: 'click',
-                    callback: ($event) => {
+                    callback: async ($event) => {
                         $event.stopPropagation();
-                        this.showElements(['schemeWrapper', 'mapContainer', 'takeScreenButton', 'closeMapButton']);
+                        await mapManager.initMap();
+                        this.showElements(this.getSchemeUiElement('mapContainer').elements);
                     }
                 }
             ]

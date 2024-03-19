@@ -11,15 +11,18 @@
 <body>
 <main>
     <button id="toggleSchemeButton" class="toggle__button">scheme</button>
-    <div  class="scheme__main back__drop" style="display: none">
+    <div  class="scheme__main back__drop" style="display: none" id="schemeComponent">
         <div class="scheme__wrapper">
             <div class="content__wrapper">
+                <!-- GOOGLE MAP PICKER -->
                 <div class="media__wrap map__container" id="capture">
                     <div id="map"></div>
                 </div>
+                <!-- SCHEME PREVIEW -->
                 <div class="media__wrap preview__container">
                     <img alt="scheme" id="schemePreview" />
                 </div>
+                <!-- SCHEME EDITOR -->
                 <div class="media__wrap canvas__container">
                     <div class="gallery-tools">
                         <!-- cropper control buttons -->
@@ -34,7 +37,7 @@
                     <div class="canvas__wrapper">
                         <canvas id="canvas_C"></canvas>
                     </div>
-                    <!-- sticers -->
+                    <!-- stickers -->
                     <div class="stickers"></div>
                     <!-- paint or text color palette -->
                     <span class="ei-color-pick">

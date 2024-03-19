@@ -1,8 +1,24 @@
-import {headers} from "./headers.js";
-import {imageExample} from "../../mockddata/imageexample.js";
+import { headers, saveHeader } from "./headers.js";
+import { imageExample } from "../../mockddata/imageexample.js";
+import { config } from "../../scheme/config/config.js";
 
-export async function saveCreatedScheme(scheme) {
 
+export async function saveCreatedScheme(schemePayload, url) {
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: saveHeader,
+            body: schemePayload
+        });
+
+        if (!response.ok) {
+            throw response;
+        }
+        const data = await response.json();
+        return data;
+    } catch(e) {
+        console.log('Error while http request: ', e);
+    }
 }
 export async function retrieve(url) {
     try {
@@ -10,7 +26,7 @@ export async function retrieve(url) {
             method: 'POST',
             headers,
             body: JSON.stringify({
-                lead_id: 35056
+                lead_id: config.mockData.leadId
             })
         });
 

@@ -5,3 +5,8 @@ export const headers = {
     'Referer': 'https://stageapp.arbostar.com/',
     'Authorization': keys.token
 }
+
+export const saveHeader = {
+    'Referer': 'https://stageapp.arbostar.com/',
+    'Authorization': keys.token
+}

@@ -1,8 +1,14 @@
-import imagesManager from "./imagesManager.js";
+import imagesManager from "./previewManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 import model from "../model/model.js";
-import { retrieve, retrieveMockImage } from "../../entryGate/http/requests.js";
+import {retrieve, retrieveMockImage, saveCreatedScheme} from "../../entryGate/http/requests.js";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
+import {config} from "../config/config.js";
+import schemeViewController from "./schemeViewController.js";
+import mapManager from "./mapManager.js";
+import previewManager from "./previewManager.js";
+import schemeEditorAPI from "../../entryGate/mainCodeBridge/schemeEditorAPI.js";
+import requestsBodyProvider from "../../entryGate/http/requestsBodyProvider.js";
 
 class SchemeManager {
     _currentScheme = null;
@@ -13,10 +19,31 @@ class SchemeManager {
     setCurrentScheme(newScheme) {
         this._currentScheme = getSafeCopy(newScheme);
     }
+
     seCurrentSchemeProperty(propertyName, propertyValue) {
         this.currentScheme[propertyName] = propertyValue;
     }
-    initSchemeService() {}
+
+    async initSchemeComponent() {
+        try {
+            schemeViewController.viewNavigationRouter$.next({load: true, targetElementName: 'mapContainer'});
+            const mockEstimate = schemeEditorAPI.importDataToSchemeEditor('estimate');
+            if (mockEstimate.scheme.result) {
+                previewManager.initSchemePreview(mockEstimate.scheme.result);
+                schemeViewController.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
+            } else {
+                mapManager.initMap().then(
+                    () => schemeViewController.viewNavigationRouter$.next({
+                            load: false,
+                            targetElementName: 'mapContainer'
+                        }
+                    ));
+                //schemeViewController.viewNavigationRouter$.next({ load: false, targetElementName: 'mapContainer' });
+            }
+        } catch (e) {
+            console.error('Error while init scheme component: ', e);
+        }
+    }
     async createSchemeFromOriginalURLAndElementsObj(resWithSchemeOriginalURLAndElementsObj) {
         if(!model.respHasSchemeOriginalURLAndElementsObj(resWithSchemeOriginalURLAndElementsObj)) return;
         const { original, elements } = model.getResponseData(resWithSchemeOriginalURLAndElementsObj);
@@ -65,18 +92,18 @@ class SchemeManager {
             console.log('Error while scheme retrieving: ', error);
         }
     }
-    async mockFetchScheme(){
-        const scheme = await retrieveMockImage();
-        this.setCurrentScheme({
-            original: scheme.url,
-            elements: scheme.objects,
-            // when scheme is just taken
-            dataUrl: scheme.objects,
-            height: scheme.objects.height,
-            width: scheme.objects.width
-        });
-        console.log(this.currentScheme);
+
+    async saveScheme() {
+        try {
+            const body = requestsBodyProvider.getBodyForSaveScheme(this.currentScheme);
+            const url = config.apiRoute + '/estimates/presave_scheme';
+            let data = await saveCreatedScheme(body, url);
+            console.log('response: ', data);
+        } catch (error) {
+            console.log('Error while scheme saving: ', error);
+        }
     }
+
     destroySchemeService() {
         this.setCurrentScheme(null);
     }

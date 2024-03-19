@@ -1,8 +1,19 @@
 import {config} from "../config/config.js";
+import schemeManager from "./schemeManager.js";
 
-class ImagesManager {
+class PreviewManager {
     currentImage = null;
-    initImagesService() {}
+    initSchemePreview(schemeUrl) {
+        let preview = document.querySelector("#schemePreview");
+        if(schemeUrl) {
+            schemeUrl = this.getUrlToPreview(schemeUrl);
+            preview.src = schemeUrl;
+            preview.style.display = config.display.flex;
+        } else {
+            preview.src = '';
+            preview.style.display = config.display.none;
+        }
+    }
 
 
     async getSchemeAsDataUrlIfOnline(schemeUrl) {
@@ -98,8 +109,15 @@ class ImagesManager {
         return parts.join('/');
     }
 
+    getUrlToPreview(imageUrl) {
+        imageUrl = this.getFullPath(imageUrl);
+        return !imageUrl.startsWith('data')
+            ? imageUrl + '?' + String(Date.now())
+            : imageUrl;
+    }
+
     getFullPath(serverFilePath) {
-        return serverFilePath?.startsWith('uploads') ? `${config.url}${serverFilePath}` : serverFilePath;
+        return this.isImgUrl(serverFilePath) ? `${config.url}${serverFilePath}` : serverFilePath;
     }
 
     isImgUrl(candidateUrl) {
@@ -110,4 +128,4 @@ class ImagesManager {
     }
 }
 
-export default new ImagesManager();
+export default new PreviewManager();
