@@ -304,7 +304,8 @@ class SchemeViewController {
                         $event.stopPropagation();
                         galleryToolsViewController.initTools();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
-                        if(schemeManager.currentEstimate.scheme?.result) {
+                        const { result } = schemeManager.currentEstimate.scheme;
+                        if(result && result.startsWith('http')) {
                             await schemeManager.fetchScheme(config.schemeUrl);
                         }
                         await fabricManager.initCanvas();
@@ -402,14 +403,17 @@ class SchemeViewController {
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
                         const { leadId, id, scheme } = schemeManager.currentEstimate;
                         const response = await schemeManager.deleteScheme({ lead_id: leadId, id, file: scheme?.result });
-                        if(response) {
-                            await mapManager.initMap();
-                            this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
-                        } else {
-                            this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
-                            alert('Something went wrong, can\'t remove scheme');
-                        }
-
+                        // if(response) {
+                        //     await mapManager.initMap();
+                        //     this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
+                        // } else {
+                        //     this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
+                        //     alert('Something went wrong, can\'t remove scheme');
+                        // }
+                        await mapManager.initMap();
+                        schemeManager.currentEstimate.scheme.original = '';
+                        this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
+                        alert('Something went wrong, can\'t remove scheme');
                     }
                 }
             ]

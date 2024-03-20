@@ -16,6 +16,7 @@ class SchemeManager {
     currentEstimate;
     _currentScheme = null;
     schemeOutput$;
+    source = true;
     get currentScheme() {
         return this._currentScheme;
     }
@@ -24,7 +25,8 @@ class SchemeManager {
         schemeEditorAPI.importDataToSchemeEditor('estimate').scheme = getSafeCopy(newScheme);
         this._currentScheme = getSafeCopy(newScheme);
         this.schemeOutput$.next(this._currentScheme);
-        previewManager.setPreviewSrc(newScheme?.editedUrl);
+        !newScheme && (this.currentEstimate.scheme.origin = ''); // just for test purp
+        previewManager.setPreviewSrc(newScheme?.editedUrl || newScheme?.result || newScheme?.original);
     }
 
     seCurrentSchemeProperty(propertyName, propertyValue) {
@@ -67,6 +69,7 @@ class SchemeManager {
     initSchemeWithMapScreenShot(mapAsDataUrl) {
         const scheme = getSafeCopy(model.defaultScheme);
         scheme.original = mapAsDataUrl;
+        scheme.result = mapAsDataUrl;
         this.setCurrentScheme(scheme);
     }
     async createScheme(schemeDataUrl, schemeOriginal, schemeElements) {
@@ -75,7 +78,7 @@ class SchemeManager {
             return;
         }
         if(schemeDataUrl.startsWith('http')) {
-            schemeDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(schemeDataUrl);
+            schemeDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(schemeDataUrl + '?' + String(Date.now()));
         }
         const scheme = getSafeCopy(model.defaultScheme);
         scheme.dataUrl = schemeDataUrl;
@@ -108,9 +111,8 @@ class SchemeManager {
             if(response && response.status) {
                 const data = model.getResponseData(response);
                 if(model.respHasSchemePathAndElementsURLs(data)) {
-                    this.seCurrentSchemeProperty('result', data.path);
+                    this.seCurrentSchemeProperty('result', data.path + '?' + String(Date.now()));
                 }
-                console.log('RESPONSE: ', response);
                 this.setCurrentScheme(this._currentScheme);
             }
             return response;

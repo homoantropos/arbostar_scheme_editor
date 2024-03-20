@@ -26,10 +26,8 @@ class MapManager {
     async takeMapAsScreenshot() {
         try {
             let element = document.querySelector("#capture");
-            let preview = document.querySelector("#schemePreview");
 
-            if (html2canvas && element && preview) {
-                preview.src = "";
+            if (html2canvas && element) {
                 html2canvas(document.querySelector("#capture"), {
                     useCORS: true,
                     width: element.scrollWidth,
@@ -38,7 +36,9 @@ class MapManager {
                     y: window.pageYOffset,
                     willReadFrequently: true
                 }).then(async canvas => {
-                    preview.src = canvas.toDataURL();
+                    console.log('TTT');
+
+                    await schemeManager.saveScheme();
                     schemeManager.initSchemeWithMapScreenShot(canvas.toDataURL());
                 });
             }

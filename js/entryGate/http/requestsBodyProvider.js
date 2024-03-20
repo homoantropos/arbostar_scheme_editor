@@ -2,7 +2,8 @@ import schemeManager from "../../scheme/services/schemeManager.js";
 
 class SchemeRequestsPayloadProvider {
     getBodyForSaveScheme(editedScheme) {
-        const source = !schemeManager.currentEstimate.scheme?.original;
+        const source = schemeManager.source;
+        console.log('sourece: ', source);
         const body = new FormData();
         if (source) {
             body.append('source', 'true');
