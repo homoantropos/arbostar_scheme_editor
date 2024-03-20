@@ -36,10 +36,8 @@ class MapManager {
                     y: window.pageYOffset,
                     willReadFrequently: true
                 }).then(async canvas => {
-                    console.log('TTT');
-
-                    await schemeManager.saveScheme();
                     schemeManager.initSchemeWithMapScreenShot(canvas.toDataURL());
+                    await schemeManager.saveScheme();
                 });
             }
         } catch(e) {

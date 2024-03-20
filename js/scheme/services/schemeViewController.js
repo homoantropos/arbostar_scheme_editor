@@ -6,7 +6,7 @@ import {config} from "../config/config.js";
 import galleryToolsViewController from "./galleryToolsViewController.js";
 import {setUIElementsWithListeners, setElementsVisibility, getUiElement, getUiElementsObjKeys} from "../utils/viewManager.js";
 import schemeManager from "./schemeManager.js";
-import schemeEditorAPI from "../../entryGate/mainCodeBridge/schemeEditorAPI.js";
+import previewManager from "./previewManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
@@ -402,18 +402,15 @@ class SchemeViewController {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
                         const { leadId, id, scheme } = schemeManager.currentEstimate;
-                        const response = await schemeManager.deleteScheme({ lead_id: leadId, id, file: scheme?.result });
-                        // if(response) {
-                        //     await mapManager.initMap();
-                        //     this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
-                        // } else {
-                        //     this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
-                        //     alert('Something went wrong, can\'t remove scheme');
-                        // }
-                        await mapManager.initMap();
-                        schemeManager.currentEstimate.scheme.original = '';
-                        this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
-                        alert('Something went wrong, can\'t remove scheme');
+                        const file = previewManager.cutUrlToServerPath(scheme?.result);
+                        const response = await schemeManager.deleteScheme({ lead_id: leadId, id, file });
+                        if(response) {
+                            await mapManager.initMap();
+                            this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
+                        } else {
+                            this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
+                            alert('Something went wrong, can\'t remove scheme');
+                        }
                     }
                 }
             ]

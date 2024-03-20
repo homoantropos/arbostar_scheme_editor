@@ -22,10 +22,9 @@ class SchemeManager {
     }
 
     setCurrentScheme(newScheme) {
-        schemeEditorAPI.importDataToSchemeEditor('estimate').scheme = getSafeCopy(newScheme);
-        this._currentScheme = getSafeCopy(newScheme);
+        newScheme && (schemeEditorAPI.importDataToSchemeEditor('estimate').scheme = getSafeCopy(newScheme));
+        this._currentScheme = newScheme ? getSafeCopy(newScheme) : newScheme;
         this.schemeOutput$.next(this._currentScheme);
-        !newScheme && (this.currentEstimate.scheme.origin = ''); // just for test purp
         previewManager.setPreviewSrc(newScheme?.editedUrl || newScheme?.result || newScheme?.original);
     }
 
@@ -57,7 +56,7 @@ class SchemeManager {
         if(!model.respHasSchemeOriginalURLAndElementsObj(resWithSchemeOriginalURLAndElementsObj)) return;
         const { original, elements } = model.getResponseData(resWithSchemeOriginalURLAndElementsObj);
         const dataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(original);
-        return await this.createScheme(dataUrl, dataUrl, elements);
+        return await this.createScheme(dataUrl, dataUrl, elements, false);
     }
     // createShemeFromSchemePathAndElementsURLString(resWithSchemePathAndElementsURLString) {
     //     if(!model.respHasSchemePathAndElementsURLs(resWithSchemePathAndElementsURLString)) return;
@@ -68,11 +67,12 @@ class SchemeManager {
 
     initSchemeWithMapScreenShot(mapAsDataUrl) {
         const scheme = getSafeCopy(model.defaultScheme);
+        scheme.editedUrl = mapAsDataUrl;
         scheme.original = mapAsDataUrl;
         scheme.result = mapAsDataUrl;
         this.setCurrentScheme(scheme);
     }
-    async createScheme(schemeDataUrl, schemeOriginal, schemeElements) {
+    async createScheme(schemeDataUrl, schemeOriginal, schemeElements, source) {
         if(arguments.length !== 3) {
             debugMessageLogger.logDebug('should be 3 arg')
             return;
@@ -86,6 +86,7 @@ class SchemeManager {
         scheme.width = schemeElements.width;
         scheme.height = schemeElements.height;
         scheme.elements = getSafeCopy(schemeElements);
+        this.source = source;
         return scheme;
     }
     async fetchScheme(url) {
@@ -114,6 +115,7 @@ class SchemeManager {
                     this.seCurrentSchemeProperty('result', data.path + '?' + String(Date.now()));
                 }
                 this.setCurrentScheme(this._currentScheme);
+                this.source = false;
             }
             return response;
         } catch (error) {
@@ -123,10 +125,11 @@ class SchemeManager {
 
     async deleteScheme({lead_id, id, file}) {
         try {
-            const url = config.apiRoute + '/estimates/delete_file';
+            const url = config.apiRoute + '/estimates/deleteDraftFile';
             const response = await deleteScheme(url, {lead_id, id, file});
             if(response && response.status) {
-                this.setCurrentScheme(null);
+                this.setCurrentScheme(model.defaultScheme);
+                this.source = true;
             }
             return response;
         } catch (error) {
@@ -134,7 +137,7 @@ class SchemeManager {
         }
     }
     destroySchemeService() {
-        this.setCurrentScheme(null);
+        this.setCurrentScheme(model.defaultScheme);
     }
 }
 
