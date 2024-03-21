@@ -10,6 +10,18 @@ import previewManager from "./previewManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
+
+const pinch = document.querySelector('#pinch');
+const hammertime = new Hammer(pinch);
+hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+// listen to events...
+hammertime.on("panleft panright panup pandown tap press", function(ev) {
+    console.log(ev.type +" gesture detected.");
+});
+
+console.log('HAMMER: ', hammertime, pinch);
+
 class SchemeViewController {
     constructor() { }
 
