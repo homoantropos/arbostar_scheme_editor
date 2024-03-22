@@ -1,11 +1,17 @@
-import schemeManager from "./services/schemeManager.js";
-import fabricManager from "./services/fabricManager.js";
-import imagesManager from "./services/previewManager.js";
 import schemeViewController from "./services/schemeViewController.js";
+import {fetchEstimateOnStart} from "../entryGate/http/requests.js";
+import {config} from "./config/config.js";
 
 export function initSchemeComponent() {
-    document.addEventListener('DOMContentLoaded', (event) => schemeViewController.setToggleButtonOnProjectStart(event));
+    document.addEventListener('DOMContentLoaded', (event) => {
+        schemeViewController.setToggleButtonOnProjectStart(event);
+        fetchEstimateOnStart(config.mockData.leadId);
+    });
 }
+
+
+
+
 // export async function fetchScheme(url) {
 //     await schemeManager.fetchScheme(url);
 // }

@@ -8,7 +8,7 @@ import schemeEditorAPI from "../../entryGate/mainCodeBridge/schemeEditorAPI.js";
 import schemeViewController from "./schemeViewController.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 import { config } from "../config/config.js";
-import { deleteScheme, retrieve, saveCreatedScheme } from "../../entryGate/http/requests.js";
+import { deleteScheme, retrieveScheme, saveCreatedScheme } from "../../entryGate/http/requests.js";
 
 const { BehaviorSubject } = rxjs;
 
@@ -47,6 +47,7 @@ class SchemeManager {
                 await mapManager.initMap();
                 schemeViewController.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
             }
+            this._currentScheme = this.currentEstimate.scheme;
             this.schemeOutput$ = new BehaviorSubject(this.currentScheme);
         } catch (e) {
             console.error('Error while init scheme component: ', e);
@@ -86,12 +87,13 @@ class SchemeManager {
         scheme.width = schemeElements.width;
         scheme.height = schemeElements.height;
         scheme.elements = getSafeCopy(schemeElements);
+        scheme.id = this.currentEstimate.scheme?.id
         this.source = source;
         return scheme;
     }
     async fetchScheme(url) {
         try {
-            let data = await retrieve(url);
+            let data = await retrieveScheme(url);
             if(data && data.data.elements && typeof data.data.elements === 'string') {
                 data.data.elements = JSON.parse(data.data.elements);
             }

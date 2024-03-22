@@ -16,20 +16,22 @@ class SchemeModelService {
         // when scheme is just taken
         dataUrl: '',
         height: '',
-        width: ''
+        width: '',
+        id: ''
     }
     get defaultScheme() {
         return this._defaultScheme;
     }
     objectIsScheme(candidate) {
         if (typeof candidate !== 'object' || candidate == null) return false;
-        return Object.keys(candidate).length === 6
+        return Object.keys(candidate).length === 7
             && candidate.hasOwnProperty('result')
             && candidate.hasOwnProperty('original')
             && candidate.hasOwnProperty('elements')
             && candidate.hasOwnProperty('dataUrl')
             && candidate.hasOwnProperty('height')
             && candidate.hasOwnProperty('width')
+            && candidate.hasOwnProperty('id')
             && (!!candidate.elements
                 && Object.keys(candidate.elements).length === 5
                 && candidate.elements.hasOwnProperty('width')

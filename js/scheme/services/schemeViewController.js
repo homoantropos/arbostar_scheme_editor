@@ -321,7 +321,7 @@ class SchemeViewController {
                         galleryToolsViewController.initTools();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
                         const { result } = schemeManager.currentEstimate.scheme;
-                        if(result && result.startsWith('http')) {
+                        if(result) {
                             await schemeManager.fetchScheme(config.schemeUrl);
                         }
                         await fabricManager.initCanvas();
@@ -417,9 +417,10 @@ class SchemeViewController {
                     callback: async ($event) => {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
-                        const { leadId, id, scheme } = schemeManager.currentEstimate;
+                        const { leadId, scheme } = schemeManager.currentEstimate;
                         const file = previewManager.cutUrlToServerPath(scheme?.result);
-                        const response = await schemeManager.deleteScheme({ lead_id: leadId, id, file });
+                        console.log('lead_id: leadId, id: scheme.id, file', leadId, scheme.id, file);
+                        const response = await schemeManager.deleteScheme({ lead_id: leadId, id: scheme.id, file });
                         if(response) {
                             await mapManager.initMap();
                             this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
