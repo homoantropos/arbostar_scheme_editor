@@ -85,6 +85,9 @@ export async function fetchEstimateOnStart(leadId) {
         }
         const data = await response.json();
         if(data) {
+            console.log('estimate: ', data.data);
+            mockEstimate.lead.latitude = data.data.lead.latitude;
+            mockEstimate.lead.longitude = data.data.lead.longitude;
             const estScheme = findSchemeInClientFiles(data.data?.estimate?.client_files);
             if(!estScheme) return;
             const scheme = createSchemeFromResponce(estScheme);

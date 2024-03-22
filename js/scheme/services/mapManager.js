@@ -1,10 +1,11 @@
 import schemeManager from "./schemeManager.js";
 import { getDOMElement } from "../utils/viewManager.js";
+import {mockEstimate} from "../../mockddata/mockEstimate.js";
 
 class MapManager {
     map;
     async initMap() {
-        const position = { lat: 43.722095, lng: -79.394153 };
+        const position = { lat: mockEstimate.lead.latitude, lng: mockEstimate.lead.longitude };
         const { Map } = await google.maps.importLibrary("maps");
         const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
         this.map = new Map(getDOMElement("#map"), {
