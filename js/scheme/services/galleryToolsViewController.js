@@ -1,13 +1,11 @@
-import {config} from "../config/config.js";
+import { config } from "../config/config.js";
 import fabricManager from "./fabricManager.js";
 import schemeViewController from "./schemeViewController.js";
 import {
     setUIElementsWithListeners,
-    setElementsVisibility,
     getUiElement,
-    getUiElementsObjKeys,
     showElement,
-    hideElement
+    hideElement, addDotToClassName
 } from "../utils/viewManager.js";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
 
@@ -20,10 +18,15 @@ class GalleryToolsController {
         this.createStickersBlock();
     }
 
+    toggleTools() {
+        this.toggleColorPickAndBrushSlider();
+        const { isShowPalette, isTrashVisible, isMouseOverTrash, showStickers, isITextSelected, showPhotos } = fabricManager;
+
+    }
     get galleryUIElementsObjKeys() {
         return schemeViewController.getUiElementsObjKeys(this.galleryToolsUiElements);
     }
-
+    toggleSctickers() {}
     toggleColorPickAndBrushSlider() {
         if(fabricManager.isITextSelected || fabricManager.painting) {
             showElement(this.galleryToolsUiElements, 'colorPick');
@@ -52,7 +55,7 @@ class GalleryToolsController {
         }
         fabricManager.colors.forEach(color => {
             const colorClassName = 'color-' + color.replace('#', '');
-            let colorElement = document.querySelector('.' + colorClassName);
+            let colorElement = getUiElement(addDotToClassName(colorClassName));
             if(!colorElement) {
                 colorElement = document.createElement('span');
                 colorElement.className = 'edit-color';
@@ -162,6 +165,7 @@ class GalleryToolsController {
                         $event.stopPropagation();
                         showElement(this.galleryToolsUiElements, 'stickers');
                         fabricManager.toggleStickers();
+                        this.toggleColorPickAndBrushSlider();
                         this.setSelected();
                     }
                 }
@@ -182,6 +186,7 @@ class GalleryToolsController {
                         $event.stopPropagation();
                         fabricManager.togglePaintMode();
                         this.toggleColorPickAndBrushSlider();
+
                         this.setSelected();
                     }
                 }
@@ -314,7 +319,7 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        console.log("EDIT COLOR!");
+                        this.toggleColorsPanel();
                     }
                 }
             ]

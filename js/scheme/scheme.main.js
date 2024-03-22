@@ -23,6 +23,11 @@ LOGIC
 1. add figure marker to stickers
 2. add trash bin functionality
 3. add proper behavior of gallery tools icons - when fabric page is closed every should set as untouched
+4. [ schemeViewController - preview ] hide img if src is null
+5. [ schemeViewController - fabric ] add stickers panel hiding after sticker choice
+6. [ schemeViewController - fabric ] add cropper hide on choice some other control
+7. [ schemeEditorAPI ] add retrieve existed scheme from server on component start
+8. [ fabricManager ] reduce saveImg() method calls
 VIEW
 1. approve proper view
 2. [ schemeViewController - fabric ] set input slider color along with paintColor prop

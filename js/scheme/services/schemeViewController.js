@@ -4,23 +4,26 @@ import debugMessageLogger from "../utils/debugMessageLogger.js";
 import model from "../model/model.js";
 import {config} from "../config/config.js";
 import galleryToolsViewController from "./galleryToolsViewController.js";
-import {setUIElementsWithListeners, setElementsVisibility, getUiElement, getUiElementsObjKeys} from "../utils/viewManager.js";
+import {
+    setUIElementsWithListeners,
+    setElementsVisibility,
+    getUiElement,
+    getUiElementsObjKeys,
+    getDOMElement
+} from "../utils/viewManager.js";
 import schemeManager from "./schemeManager.js";
 import previewManager from "./previewManager.js";
 
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 
-const pinch = document.querySelector('#pinch');
+const pinch = getDOMElement('#pinch');
 const hammertime = new Hammer(pinch);
 hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
-// listen to events...
 hammertime.on("panleft panright panup pandown tap press", function(ev) {
     console.log(ev.type +" gesture detected.");
 });
-
-console.log('HAMMER: ', hammertime, pinch);
 
 class SchemeViewController {
     constructor() { }
@@ -49,8 +52,8 @@ class SchemeViewController {
     }
     setToggleButtonOnProjectStart(event) {
         event.stopPropagation();
-        const toggleButton = document.querySelector('#toggleSchemeButton');
-        const divToggle = document.querySelector('#schemeComponent');
+        const toggleButton = getDOMElement('#toggleSchemeButton');
+        const divToggle = getDOMElement('#schemeComponent');
 
         toggleButton.addEventListener('click', () => {
             const displayStyle = getComputedStyle(divToggle).display;
@@ -290,6 +293,7 @@ class SchemeViewController {
                     callback: async ($event) => {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
+                        await fabricManager.saveImg();
                         const response = await schemeManager.saveScheme();
                         if(response && response.status) {
                             this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});

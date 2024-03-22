@@ -3,15 +3,17 @@ import schemeManager from "./schemeManager.js";
 import debugMessenger from "../utils/debugMessageLogger.js"
 import { EDITING_MODES } from "../config/config.js";
 import {getSafeCopy} from "../utils/safeJsonParser.js";
+import {getDOMElement, hideElement} from "../utils/viewManager.js";
+import galleryToolsViewController from "./galleryToolsViewController.js";
 
 const { BehaviorSubject } = rxjs;
 
 class FabricManager {
-    container = document.querySelector('.content__wrapper');
-    canvas = document.querySelector('#canvas_C');
-    galleryInner = document.querySelector('.media__wrap.canvas__container')
-    brushSlider = document.querySelector('#brush-slider');
-    trash = document.querySelector('#trash');
+    container = getDOMElement('.content__wrapper');
+    canvas = getDOMElement('#canvas_C');
+    galleryInner = getDOMElement('.media__wrap.canvas__container')
+    brushSlider = getDOMElement('#brush-slider');
+    trash = getDOMElement('#trash');
     _fabric;
     backImage;
     editedScheme;
@@ -273,6 +275,8 @@ class FabricManager {
     // fabric image operations
     addText() {
         this.deleteCrop();
+        this.toggleStickers();
+        galleryToolsViewController.toggleColorsPanel();
         this.showStickers = false;
         this.endPaint();
         const text = new fabric.IText('Comment', {
@@ -299,6 +303,8 @@ class FabricManager {
     }
     toggleStickers(){
         this.showStickers = !this.showStickers;
+        if(!this.showStickers)
+            hideElement(galleryToolsViewController.galleryToolsUiElements, 'stickers');
         this.painting = false;
         this.isITextSelected = false;
     }

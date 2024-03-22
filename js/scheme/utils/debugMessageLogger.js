@@ -1,6 +1,6 @@
 class DebugMessageLogger {
     logDebug(debugMessage){
-        console.warn(`[ Debug ] ${debugMessage} should be defined`);
+        console.warn(`[ Debug ] ${debugMessage}`);
     }
 }
 

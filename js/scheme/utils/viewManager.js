@@ -1,12 +1,29 @@
 import debugMessageLogger from "./debugMessageLogger.js";
 import {config} from "../config/config.js";
 
+export function getDOMElement(queryName) {
+    return document.querySelector(queryName);
+}
+
+export function addDotToClassName(className) {
+    const dotSign = '.';
+    switch (typeof className) {
+        case('string') : {
+            if(className.startsWith('.')) return className;
+            return dotSign + className;
+        }
+        default : {
+            debugMessageLogger.logDebug(`classname should be 'string' type! provided type is: typeof ${className}`);
+            return null;
+        }
+    }
+}
 export function setUIElementsWithListeners(uiElementsKeysObj) {
     const objKeys = Object.keys(uiElementsKeysObj);
     objKeys.map(key => {
         let element = getUiElement(uiElementsKeysObj, key);
         let {elementClass, listeners} = element;
-        element.targetElement = document.getElementsByClassName(elementClass)[0];
+        element.targetElement = getDOMElement(addDotToClassName(elementClass));
         listeners.length && listeners.forEach(
             listener => {
                 if (element.targetElement) {

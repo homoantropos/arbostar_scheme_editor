@@ -1,14 +1,14 @@
-import imagesManager from "./previewManager.js";
-import { getSafeCopy } from "../utils/safeJsonParser.js";
-import model from "../model/model.js";
-import {deleteScheme, retrieve, retrieveMockImage, saveCreatedScheme} from "../../entryGate/http/requests.js";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
-import {config} from "../config/config.js";
-import schemeViewController from "./schemeViewController.js";
+import imagesManager from "./previewManager.js";
 import mapManager from "./mapManager.js";
+import model from "../model/model.js";
 import previewManager from "./previewManager.js";
-import schemeEditorAPI from "../../entryGate/mainCodeBridge/schemeEditorAPI.js";
 import requestsBodyProvider from "../../entryGate/http/requestsBodyProvider.js";
+import schemeEditorAPI from "../../entryGate/mainCodeBridge/schemeEditorAPI.js";
+import schemeViewController from "./schemeViewController.js";
+import { getSafeCopy } from "../utils/safeJsonParser.js";
+import { config } from "../config/config.js";
+import { deleteScheme, retrieve, saveCreatedScheme } from "../../entryGate/http/requests.js";
 
 const { BehaviorSubject } = rxjs;
 
@@ -73,8 +73,8 @@ class SchemeManager {
         this.setCurrentScheme(scheme);
     }
     async createScheme(schemeDataUrl, schemeOriginal, schemeElements, source) {
-        if(arguments.length !== 3) {
-            debugMessageLogger.logDebug('should be 3 arg')
+        if(!(arguments.length >= 3 || arguments.length <= 4)) {
+            debugMessageLogger.logDebug(`createScheme() should has 3 or 4 arg, got ${arguments.length}`);
             return;
         }
         if(schemeDataUrl.startsWith('http')) {

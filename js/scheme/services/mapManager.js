@@ -1,4 +1,5 @@
 import schemeManager from "./schemeManager.js";
+import { getDOMElement } from "../utils/viewManager.js";
 
 class MapManager {
     map;
@@ -6,7 +7,7 @@ class MapManager {
         const position = { lat: 43.722095, lng: -79.394153 };
         const { Map } = await google.maps.importLibrary("maps");
         const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-        this.map = new Map(document.getElementById("map"), {
+        this.map = new Map(getDOMElement("#map"), {
             center: position,
             disableDefaultUI: true,
             fullscreenControl: true,
@@ -25,10 +26,10 @@ class MapManager {
 
     async takeMapAsScreenshot() {
         try {
-            let element = document.querySelector("#capture");
+            let element = getDOMElement("#capture");
 
             if (html2canvas && element) {
-                html2canvas(document.querySelector("#capture"), {
+                html2canvas(element, {
                     useCORS: true,
                     width: element.scrollWidth,
                     height: element.scrollHeight,

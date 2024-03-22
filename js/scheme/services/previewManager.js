@@ -1,5 +1,5 @@
-import {config} from "../config/config.js";
-import schemeManager from "./schemeManager.js";
+import { config } from "../config/config.js";
+import { getDOMElement } from "../utils/viewManager.js";
 
 class PreviewManager {
     currentImage = null;
@@ -7,7 +7,7 @@ class PreviewManager {
         this.setPreviewSrc(schemeUrl);
     }
     setPreviewSrc(schemeUrl) {
-        let preview = document.querySelector("#schemePreview");
+        let preview = getDOMElement("#schemePreview");
         if(schemeUrl) {
             schemeUrl = this.getUrlToPreview(schemeUrl);
             preview.src = schemeUrl;
