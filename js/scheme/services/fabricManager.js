@@ -107,6 +107,7 @@ class FabricManager {
                 this.selectedObject = this._fabric.getActiveObject() || {};
                 if (event.target.type === 'i-text') {
                     this.showStickers = false;
+                    galleryToolsViewController.toggleStickers();
                     this.painting = false;
                     this.isITextSelected = true;
                 } else {
@@ -275,9 +276,9 @@ class FabricManager {
     // fabric image operations
     addText() {
         this.deleteCrop();
-        this.toggleStickers();
         galleryToolsViewController.toggleColorsPanel();
         this.showStickers = false;
+        galleryToolsViewController.toggleStickers();
         this.endPaint();
         const text = new fabric.IText('Comment', {
             strokeWidth: 2,
@@ -301,13 +302,6 @@ class FabricManager {
         this.isITextSelected = true;
         this.saveImg();
     }
-    toggleStickers(){
-        this.showStickers = !this.showStickers;
-        if(!this.showStickers)
-            hideElement(galleryToolsViewController.galleryToolsUiElements, 'stickers');
-        this.painting = false;
-        this.isITextSelected = false;
-    }
     addSticker(sticker) {
         this.endPaint();
         this.setEditorMode(EDITING_MODES.sticker);
@@ -326,12 +320,98 @@ class FabricManager {
             this.saveImg();
         });
         this.showStickers = false;
+        galleryToolsViewController.toggleStickers();
+    }
+    createEditableNumberFabricInput() {
+        const circle = new fabric.Circle({
+            radius: 30,
+            fill: '#cc4c42',
+            originX: 'center',
+            originY: 'center',
+            stroke: '#ffffff',
+            strokeWidth: 2
+        });
+        const text = new fabric.Textbox('0', {
+            originX: 'center',
+            originY: 'center',
+            textAlign: 'center',
+            fontSize: this.text_size,
+            hasControls: false,
+            name: 'ITextNumber'
+        });
+        const group = new fabric.Group([circle, text], {
+            originX: 'center',
+            originY: 'center'
+        });
+        let clickCounter = 0;
+        group.on('mouseup', (event) => {
+            const trashOffset = this.trash.getBoundingClientRect();
+            trashOffset.y -= 140;
+            if (
+                event.pointer &&
+                event.pointer.x >= trashOffset.x &&
+                event.pointer.x <= Number(trashOffset.x) + 90 &&
+                event.pointer.y >= trashOffset.y &&
+                event.pointer.y <= Number(trashOffset.y) + 90
+            ) {
+                return;
+            }
+            clickCounter++;
+            if (clickCounter >= 2) {
+                this.showStickers = false;
+                galleryToolsViewController.toggleStickers();
+                const textForEditing = new fabric.Textbox(text.text, {
+                    originX: 'center',
+                    originY: 'center',
+                    textAlign: text.textAlign,
+                    fontSize: text.fontSize,
+                    name: 'ITextNumber',
+                    left: group.left,
+                    top: group.top
+                });
+                text.visible = false;
+                group.addWithUpdate();
+                textForEditing.visible = true;
+                textForEditing.hasControls = false;
+                this._fabric.add(textForEditing);
+                this._fabric.setActiveObject(textForEditing);
+                textForEditing.enterEditing();
+                textForEditing.selectAll();
+                textForEditing.on('changed', () => {
+                    if (!textForEditing.text) {
+                        return;
+                    }
+                    textForEditing.text = textForEditing.text.replace(/\D/g, '');
+                    if (textForEditing.text.length > 3) {
+                        textForEditing.text = textForEditing.text.slice(0, 3);
+                        this._fabric.remove(textForEditing);
+                    }
+                });
+                textForEditing.on('editing:exited', () => {
+                    text.set({
+                        text: textForEditing.text,
+                        visible: true
+                    });
+                    text.setSelectionStyles({ underline: true }, 0, text.text?.length);
+                    group.addWithUpdate();
+                    this._fabric.remove(textForEditing);
+                    this._fabric.setActiveObject(group);
+                    this.saveImg();
+                });
+                clickCounter = 0;
+            }
+        });
+        this._fabric.add(group);
+        group.center();
+        this.showStickers = false;
+        galleryToolsViewController.toggleStickers();
     }
     togglePaintMode() {
         this.deleteCrop();
         this.setEditorMode(EDITING_MODES.paint);
         this.isITextSelected = false;
         this.showStickers = false;
+        galleryToolsViewController.toggleStickers();
         this.painting = !this.painting;
         this._fabric.isDrawingMode = this.painting;
         this._fabric.freeDrawingBrush.color = this.paintColor;
@@ -385,6 +465,7 @@ class FabricManager {
         }
         if (this.showStickers) {
             this.showStickers = false;
+            galleryToolsViewController.toggleStickers();
         }
         if (this.painting) {
             this.togglePaintMode();
@@ -468,6 +549,7 @@ class FabricManager {
             this.togglePaintMode();
         } else if (this.showStickers) {
             this.showStickers = false;
+            galleryToolsViewController.toggleStickers();
         }
     }
     async rotateFabric(deg){

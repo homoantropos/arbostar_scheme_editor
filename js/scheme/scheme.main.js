@@ -1,11 +1,13 @@
 import schemeViewController from "./services/schemeViewController.js";
-import {fetchEstimateOnStart} from "../entryGate/http/requests.js";
+import {fetchEstimateOnStart, loginOnComponentStart} from "../entryGate/http/requests.js";
 import {config} from "./config/config.js";
 
 export function initSchemeComponent() {
     document.addEventListener('DOMContentLoaded', (event) => {
         schemeViewController.setToggleButtonOnProjectStart(event);
-        fetchEstimateOnStart(config.mockData.leadId);
+        loginOnComponentStart().then(
+            (loginSuccess) => loginSuccess && fetchEstimateOnStart(config.mockData.leadId, loginSuccess)
+        )
     });
 }
 

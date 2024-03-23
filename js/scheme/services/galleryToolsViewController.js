@@ -5,7 +5,7 @@ import {
     setUIElementsWithListeners,
     getUiElement,
     showElement,
-    hideElement, addDotToClassName
+    hideElement, addDotToClassName, getDOMElement
 } from "../utils/viewManager.js";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
 
@@ -75,7 +75,7 @@ class GalleryToolsController {
         this.stickersAreAdded = true;
         const stickersContainer = getUiElement(this.galleryToolsUiElements, 'stickers');
         if(!stickersContainer || !stickersContainer.targetElement) {
-            debugMessageLogger.logDebug('target element should be HTMLElement');
+            debugMessageLogger.logDebug('at createStickersBlock() target element should be HTMLElement');
             return;
         }
         const container = stickersContainer.targetElement;
@@ -90,6 +90,24 @@ class GalleryToolsController {
                 container.appendChild(img);
             }
         )
+        this.addNumberPickerListener();
+    }
+    addNumberPickerListener() {
+        const numbersPicker = getDOMElement('#numbersPicker');
+        if(numbersPicker) {
+            numbersPicker.addEventListener('click', ($event) => {
+                $event.stopPropagation();
+                fabricManager.createEditableNumberFabricInput();
+                this.toggleStickers();
+            });
+        }
+    }
+    toggleStickers(){
+        if(!fabricManager.showStickers) {
+            hideElement(this.galleryToolsUiElements, 'stickers');
+        }
+        fabricManager.painting = false;
+        fabricManager.isITextSelected = false;
     }
     setSelected() {
         this.galleryElementsNames.map(
@@ -282,7 +300,7 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        fabricManager.toggleStickers();
+                        this.toggleStickers();
                         this.setSelected();
                     }
                 }

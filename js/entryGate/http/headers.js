@@ -1,12 +1,16 @@
 import {keys} from "../../scheme/config/keys.js";
 
 export const headers = {
-    'Content-Type': 'application/json',
-    'Referer': 'https://stageapp.arbostar.com/',
-    'Authorization': keys.token
+    'Accept': 'application/json, text/plain, */*',
+    'Authorization': localStorage.getItem('token'),
+    'Role': 'estimator'
 }
 
 export const saveHeader = {
-    'Referer': 'https://stageapp.arbostar.com/',
-    'Authorization': keys.token
+    'Authorization': localStorage.getItem('token')
+}
+
+export const authHeader = {
+    'Content-Type': 'application/json',
+    'Role': 'estimator'
 }
