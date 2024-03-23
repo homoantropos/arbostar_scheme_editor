@@ -182,7 +182,7 @@ class GalleryToolsController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         showElement(this.galleryToolsUiElements, 'stickers');
-                        fabricManager.toggleStickers();
+                        this.toggleStickers();
                         this.toggleColorPickAndBrushSlider();
                         this.setSelected();
                     }

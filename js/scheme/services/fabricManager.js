@@ -241,13 +241,33 @@ class FabricManager {
             this.scaleObjects(objects.objects.objects, scaleFactor);
         }
     }
+    objIsNumberCycle(candidate) {
+        if(candidate.type !== 'group') return false;
+        const { _objects } = candidate;
+        const types = _objects.map( obj => obj.type);
+        return Array.isArray(_objects)
+        && _objects.length === 2
+        && types.includes('circle')
+        && types.includes('textbox')
+    }
+    getGroupMemberByType(fabricGroup, objType) {
+        return fabricGroup.type === 'group' && Array.isArray(fabricGroup._objects)
+            ? fabricGroup._objects.find(obj => obj.type === objType)
+            : undefined;
+    }
     async addObjectsOnFabricInit(serializedObjects) {
         try {
             fabric.util.enlivenObjects(
                 serializedObjects.objects?.objects,
                 objects => {
                     objects.forEach(object => {
-                        this._fabric.add(object);
+                        if (this.objIsNumberCycle(object)) {
+                            const circleArg = this.getGroupMemberByType(object, 'circle');
+                            const textBox = this.getGroupMemberByType(object, 'textbox');
+                            this.createEditableNumberFabricInput(circleArg, textBox, object.left, object.top);
+                        } else {
+                            this._fabric.add(object);
+                        }
                     });
                 },
                 ''
@@ -322,8 +342,8 @@ class FabricManager {
         this.showStickers = false;
         galleryToolsViewController.toggleStickers();
     }
-    createEditableNumberFabricInput() {
-        const circle = new fabric.Circle({
+    createEditableNumberFabricInput(circleArg, textArg, objLeft, objTop) {
+        const circle = circleArg ? circleArg : new fabric.Circle({
             radius: 30,
             fill: '#cc4c42',
             originX: 'center',
@@ -331,7 +351,7 @@ class FabricManager {
             stroke: '#ffffff',
             strokeWidth: 2
         });
-        const text = new fabric.Textbox('0', {
+        const text = textArg ? textArg : new fabric.Textbox('0', {
             originX: 'center',
             originY: 'center',
             textAlign: 'center',
@@ -339,9 +359,12 @@ class FabricManager {
             hasControls: false,
             name: 'ITextNumber'
         });
+        console.log('left: ', objLeft, 'top: ', objTop);
         const group = new fabric.Group([circle, text], {
             originX: 'center',
-            originY: 'center'
+            originY: 'center',
+            left: objLeft !== undefined ? objLeft : this._fabric.getWidth() / 2,
+            top: objTop !== undefined ? objTop : this._fabric.getHeight() / 2
         });
         let clickCounter = 0;
         group.on('mouseup', (event) => {
@@ -402,7 +425,9 @@ class FabricManager {
             }
         });
         this._fabric.add(group);
-        group.center();
+        if (objLeft === undefined || objTop === undefined) {
+            group.center();
+        }
         this.showStickers = false;
         galleryToolsViewController.toggleStickers();
     }
