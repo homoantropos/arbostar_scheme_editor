@@ -2,8 +2,8 @@ import schemeViewController from "./schemeViewController.js";
 import schemeManager from "./schemeManager.js";
 import debugMessenger from "../utils/debugMessageLogger.js"
 import { EDITING_MODES } from "../config/config.js";
-import {getSafeCopy} from "../utils/safeJsonParser.js";
-import {getDOMElement, hideElement} from "../utils/viewManager.js";
+import { getSafeCopy } from "../utils/safeJsonParser.js";
+import { getDOMElement } from "../utils/viewManager.js";
 import galleryToolsViewController from "./galleryToolsViewController.js";
 
 const { BehaviorSubject } = rxjs;
@@ -107,6 +107,7 @@ class FabricManager {
                 this.selectedObject = this._fabric.getActiveObject() || {};
                 if (event.target.type === 'i-text') {
                     this.showStickers = false;
+                    console.log('addFabricEvents');
                     galleryToolsViewController.toggleStickers();
                     this.painting = false;
                     this.isITextSelected = true;
@@ -147,7 +148,7 @@ class FabricManager {
             }
             this.saveImg();
         });
-        this._fabric.on('object:scaling', (event) => {
+        this._fabric.on('object:scaling', () => {
             if (this.isCurrentEditorMode(EDITING_MODES.sticker) || this.isCurrentEditorMode(EDITING_MODES.paint)) {
                 this.saveImg();
             }
@@ -262,9 +263,7 @@ class FabricManager {
                 objects => {
                     objects.forEach(object => {
                         if (this.objIsNumberCycle(object)) {
-                            const circleArg = this.getGroupMemberByType(object, 'circle');
-                            const textBox = this.getGroupMemberByType(object, 'textbox');
-                            this.createEditableNumberFabricInput(circleArg, textBox, object.left, object.top);
+                            this.copyNumberPicker(object);
                         } else {
                             this._fabric.add(object);
                         }
@@ -298,6 +297,7 @@ class FabricManager {
         this.deleteCrop();
         galleryToolsViewController.toggleColorsPanel();
         this.showStickers = false;
+        console.log('addText');
         galleryToolsViewController.toggleStickers();
         this.endPaint();
         const text = new fabric.IText('Comment', {
@@ -340,9 +340,20 @@ class FabricManager {
             this.saveImg();
         });
         this.showStickers = false;
+        console.log('addSticker');
         galleryToolsViewController.toggleStickers();
     }
-    createEditableNumberFabricInput(circleArg, textArg, objLeft, objTop) {
+    addNewNumberPicker() {
+        const group = this.createEditableNumberFabricInput();
+        this._fabric.add(group);
+    }
+    copyNumberPicker(origin) {
+        const circleArg = this.getGroupMemberByType(origin, 'circle');
+        const textBox = this.getGroupMemberByType(origin, 'textbox');
+        const group = this.createEditableNumberFabricInput(circleArg, textBox, origin);
+        this._fabric.add(group);
+    }
+    createEditableNumberFabricInput(circleArg, textArg, originObj) {
         const circle = circleArg ? circleArg : new fabric.Circle({
             radius: 30,
             fill: '#cc4c42',
@@ -359,12 +370,14 @@ class FabricManager {
             hasControls: false,
             name: 'ITextNumber'
         });
-        console.log('left: ', objLeft, 'top: ', objTop);
         const group = new fabric.Group([circle, text], {
             originX: 'center',
             originY: 'center',
-            left: objLeft !== undefined ? objLeft : this._fabric.getWidth() / 2,
-            top: objTop !== undefined ? objTop : this._fabric.getHeight() / 2
+            left: originObj?.left !== undefined ? originObj?.left : this._fabric.getWidth() / 2,
+            top: originObj?.top !== undefined ? originObj?.top : this._fabric.getHeight() / 2,
+            scaleX: originObj?.scaleX || 1,
+            scaleY: originObj?.scaleY || 1,
+            angle: originObj?.angle || 0
         });
         let clickCounter = 0;
         group.on('mouseup', (event) => {
@@ -424,18 +437,19 @@ class FabricManager {
                 clickCounter = 0;
             }
         });
-        this._fabric.add(group);
-        if (objLeft === undefined || objTop === undefined) {
+        if (originObj?.left === undefined || originObj?.top === undefined) {
             group.center();
         }
         this.showStickers = false;
         galleryToolsViewController.toggleStickers();
+        return group;
     }
     togglePaintMode() {
         this.deleteCrop();
         this.setEditorMode(EDITING_MODES.paint);
         this.isITextSelected = false;
         this.showStickers = false;
+        console.log('togglePaintMode');
         galleryToolsViewController.toggleStickers();
         this.painting = !this.painting;
         this._fabric.isDrawingMode = this.painting;
@@ -448,7 +462,7 @@ class FabricManager {
         }, 20);
     }
     changeBrushSize(newBrushSize) {
-        this.brushSize = parseInt(newBrushSize, 10);;
+        this.brushSize = parseInt(newBrushSize, 10);
         this._fabric.freeDrawingBrush.width = this.brushSize;
     }
     async updatePaint(color = this.paintColor) {
@@ -490,6 +504,7 @@ class FabricManager {
         }
         if (this.showStickers) {
             this.showStickers = false;
+            console.log('startCrop');
             galleryToolsViewController.toggleStickers();
         }
         if (this.painting) {
@@ -574,6 +589,7 @@ class FabricManager {
             this.togglePaintMode();
         } else if (this.showStickers) {
             this.showStickers = false;
+            console.log('resetPaint');
             galleryToolsViewController.toggleStickers();
         }
     }
@@ -611,7 +627,11 @@ class FabricManager {
                                     scaleX: newCoords.scaleX,
                                     angle: resAngle
                                 });
-                                this._fabric.add(object);
+                                if(this.objIsNumberCycle(object)) {
+                                    this.copyNumberPicker(object);
+                                } else {
+                                    this._fabric.add(object);
+                                }
                             });
                             setTimeout(() => {
                                 this.imageIsReady = true;

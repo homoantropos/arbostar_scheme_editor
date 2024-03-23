@@ -1,6 +1,5 @@
 import { config } from "../config/config.js";
 import fabricManager from "./fabricManager.js";
-import schemeViewController from "./schemeViewController.js";
 import {
     setUIElementsWithListeners,
     getUiElement,
@@ -18,15 +17,13 @@ class GalleryToolsController {
         this.createStickersBlock();
     }
 
-    toggleTools() {
-        this.toggleColorPickAndBrushSlider();
-        const { isShowPalette, isTrashVisible, isMouseOverTrash, showStickers, isITextSelected, showPhotos } = fabricManager;
-
-    }
-    get galleryUIElementsObjKeys() {
-        return schemeViewController.getUiElementsObjKeys(this.galleryToolsUiElements);
-    }
-    toggleSctickers() {}
+    // toggleTools() {
+    //     this.toggleColorPickAndBrushSlider();
+    // }
+    // get galleryUIElementsObjKeys() {
+    //     return schemeViewController.getUiElementsObjKeys(this.galleryToolsUiElements);
+    // }
+    // toggleSctickers() {}
     toggleColorPickAndBrushSlider() {
         if(fabricManager.isITextSelected || fabricManager.painting) {
             showElement(this.galleryToolsUiElements, 'colorPick');
@@ -97,7 +94,8 @@ class GalleryToolsController {
         if(numbersPicker) {
             numbersPicker.addEventListener('click', ($event) => {
                 $event.stopPropagation();
-                fabricManager.createEditableNumberFabricInput();
+                fabricManager.addNewNumberPicker();
+                console.log('FIRS')
                 this.toggleStickers();
             });
         }
@@ -105,6 +103,8 @@ class GalleryToolsController {
     toggleStickers(){
         if(!fabricManager.showStickers) {
             hideElement(this.galleryToolsUiElements, 'stickers');
+        } else {
+            showElement(this.galleryToolsUiElements, 'stickers');
         }
         fabricManager.painting = false;
         fabricManager.isITextSelected = false;
@@ -182,6 +182,8 @@ class GalleryToolsController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         showElement(this.galleryToolsUiElements, 'stickers');
+                        console.log('SECOND')
+                        fabricManager.showStickers = !fabricManager.showStickers;
                         this.toggleStickers();
                         this.toggleColorPickAndBrushSlider();
                         this.setSelected();
@@ -300,6 +302,8 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        fabricManager.showStickers = true;
+                        console.log('THIRD')
                         this.toggleStickers();
                         this.setSelected();
                     }

@@ -15,7 +15,7 @@ class MapManager {
             mapId: "DEMO_MAP_ID",
             mapTypeId: 'satellite',
             tilt: 0,
-            zoom: 20
+            zoom: 18
         });
         // add marker
         new AdvancedMarkerElement({
@@ -28,7 +28,6 @@ class MapManager {
     async takeMapAsScreenshot() {
         try {
             let element = getDOMElement("#capture");
-
             if (html2canvas && element) {
                 html2canvas(element, {
                     useCORS: true,

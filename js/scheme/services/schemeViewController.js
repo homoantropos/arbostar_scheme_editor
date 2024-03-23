@@ -268,10 +268,11 @@ class SchemeViewController {
                     eventName: 'click',
                     callback: async ($event) => {
                         $event.stopPropagation();
+                        previewManager.setPreviewSrc('');
                         await mapManager.takeMapAsScreenshot();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
                         setTimeout(
-                            async () => {
+                            () => {
                                 this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
                             }, 200
                         )
@@ -416,12 +417,12 @@ class SchemeViewController {
                     eventName: 'click',
                     callback: async ($event) => {
                         $event.stopPropagation();
-                        this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
+                        this.viewNavigationRouter$.next({load: true, targetElementName: 'mapContainer'});
                         const { leadId, scheme } = schemeManager.currentEstimate;
-                        const file = previewManager.cutUrlToServerPath(scheme?.result);
-                        console.log('lead_id: leadId, id: scheme.id, file', leadId, scheme.id, file);
+                        const file = previewManager.cutUrlToServerPath(scheme?.filepath);
                         const response = await schemeManager.deleteScheme({ lead_id: leadId, id: scheme.id, file });
                         if(response) {
+                            previewManager.setPreviewSrc('');
                             await mapManager.initMap();
                             this.viewNavigationRouter$.next({load: false, targetElementName: 'mapContainer'});
                         } else {

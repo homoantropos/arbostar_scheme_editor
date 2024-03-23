@@ -1,10 +1,11 @@
 import model from "../../scheme/model/model.js";
+import previewManager from "../../scheme/services/previewManager.js";
 import { config } from "../../scheme/config/config.js";
 import { getSafeCopy } from "../../scheme/utils/safeJsonParser.js";
-import {authHeader, headers, saveHeader} from "./headers.js";
 import { imageExample } from "../../mockddata/imageexample.js";
 import { keys } from "../../scheme/config/keys.js";
 import { mockEstimate } from "../../mockddata/mockEstimate.js";
+import {authHeader, headers, saveHeader} from "./headers.js";
 
 
 export async function saveCreatedScheme(schemePayload, url) {
@@ -18,8 +19,7 @@ export async function saveCreatedScheme(schemePayload, url) {
         if (!response.ok) {
             throw response;
         }
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch(e) {
         console.log('Error while http request: ', e);
     }
@@ -37,8 +37,7 @@ export async function retrieveScheme(url) {
         if (!response.ok) {
             throw response;
         }
-        const data = await response.json();
-        return data;
+        return await response.json();
     } catch(e) {
         console.log('Error while http request: ', e);
     }
@@ -59,24 +58,13 @@ export async function deleteScheme(url, {lead_id, id, file}) {
         if (!response.ok) {
             throw response;
         }
-        const data = await response.json();
-        return data;
-    } catch(e) {
-        console.log('Error while http request: ', e);
-    }
-}
-export async function retrieveMockImage() {
-    try {
-        await new Promise(resolve => setTimeout(() => resolve(), 1000));
-
-        return imageExample;
+        return await response.json();
     } catch(e) {
         console.log('Error while http request: ', e);
     }
 }
 
-// mock methods for component start
-
+// mock methods for component start, should be removed
 export async function fetchEstimateOnStart(leadId, token) {
     try {
         const url = config.url + `app/project/details/${leadId}`;
@@ -92,7 +80,7 @@ export async function fetchEstimateOnStart(leadId, token) {
                 mockEstimate.lead.longitude = data.data.lead.longitude;
                 const estScheme = findSchemeInClientFiles(data.data?.estimate?.client_files);
                 if(!estScheme) return;
-                const scheme = createSchemeFromResponce(estScheme);
+                const scheme = createSchemeFromResponse(estScheme);
                 if(model.objectIsScheme(scheme)) {
                     mockEstimate.scheme = scheme;
                 }
@@ -114,10 +102,11 @@ export function findSchemeInClientFiles(clientFilesArr) {
         }
     }
 }
-export function createSchemeFromResponce(backendResponce) {
+export function createSchemeFromResponse(backendResponse) {
     const scheme = getSafeCopy(model.defaultScheme);
-    scheme.result = backendResponce.filepath;
-    scheme.id = backendResponce.id
+    scheme.filepath = previewManager.getFullPath(backendResponse.filepath);
+    scheme.result = previewManager.getFullPath(backendResponse.filepath);
+    scheme.id = backendResponse.id
     return scheme;
 }
 export async function loginOnComponentStart() {

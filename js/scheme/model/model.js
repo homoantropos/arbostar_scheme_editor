@@ -1,5 +1,6 @@
 class SchemeModelService {
     _defaultScheme = {
+        filepath: '',
         result: '',
         // when scheme is downloaded
         original: '',
@@ -24,7 +25,7 @@ class SchemeModelService {
     }
     objectIsScheme(candidate) {
         if (typeof candidate !== 'object' || candidate == null) return false;
-        return Object.keys(candidate).length === 7
+        return Object.keys(candidate).length === 8
             && candidate.hasOwnProperty('result')
             && candidate.hasOwnProperty('original')
             && candidate.hasOwnProperty('elements')
@@ -32,6 +33,7 @@ class SchemeModelService {
             && candidate.hasOwnProperty('height')
             && candidate.hasOwnProperty('width')
             && candidate.hasOwnProperty('id')
+            && candidate.hasOwnProperty('filepath')
             && (!!candidate.elements
                 && Object.keys(candidate.elements).length === 5
                 && candidate.elements.hasOwnProperty('width')
