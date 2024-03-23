@@ -26,7 +26,8 @@ class SchemeManager {
         newScheme && (schemeEditorAPI.importDataToSchemeEditor('estimate').scheme = getSafeCopy(newScheme));
         this._currentScheme = newScheme ? getSafeCopy(newScheme) : newScheme;
         this.schemeOutput$.next(this._currentScheme);
-        previewManager.setPreviewSrc(newScheme?.editedUrl || newScheme?.result || newScheme?.original || newScheme?.filepath);
+        previewManager.allowSync && previewManager.setPreviewSrc(newScheme?.editedUrl || newScheme?.result || newScheme?.original || newScheme?.filepath);
+        previewManager.allowSync = false;
     }
 
     seCurrentSchemeProperty(propertyName, propertyValue) {

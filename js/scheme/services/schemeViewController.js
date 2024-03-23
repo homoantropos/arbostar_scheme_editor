@@ -274,7 +274,7 @@ class SchemeViewController {
                         setTimeout(
                             () => {
                                 this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
-                            }, 200
+                            }, 100
                         )
                     }
                 }
@@ -294,6 +294,7 @@ class SchemeViewController {
                     callback: async ($event) => {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
+                        previewManager.allowSync = true;
                         await fabricManager.saveImg();
                         const response = await schemeManager.saveScheme();
                         if(response && response.status) {

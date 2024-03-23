@@ -80,9 +80,10 @@ class GalleryToolsController {
             stickerPath => {
                 const img = document.createElement('IMG');
                 img.src = stickerPath;
-                img.addEventListener('click', () => {
+                img.addEventListener('click', ($event) => {
+                    $event.stopPropagation();
                     fabricManager.addSticker(stickerPath);
-                    hideElement(this.galleryToolsUiElements, 'stickers');
+                    this.toggleStickers();
                 })
                 container.appendChild(img);
             }
@@ -95,7 +96,6 @@ class GalleryToolsController {
             numbersPicker.addEventListener('click', ($event) => {
                 $event.stopPropagation();
                 fabricManager.addNewNumberPicker();
-                console.log('FIRS')
                 this.toggleStickers();
             });
         }
@@ -182,7 +182,6 @@ class GalleryToolsController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         showElement(this.galleryToolsUiElements, 'stickers');
-                        console.log('SECOND')
                         fabricManager.showStickers = !fabricManager.showStickers;
                         this.toggleStickers();
                         this.toggleColorPickAndBrushSlider();

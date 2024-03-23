@@ -340,7 +340,6 @@ class FabricManager {
             this.saveImg();
         });
         this.showStickers = false;
-        console.log('addSticker');
         galleryToolsViewController.toggleStickers();
     }
     addNewNumberPicker() {

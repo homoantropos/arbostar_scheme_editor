@@ -3,6 +3,7 @@ import { getDOMElement } from "../utils/viewManager.js";
 
 class PreviewManager {
     currentImage = null;
+    allowSync = false;
     initSchemePreview(schemeUrl) {
         this.setPreviewSrc(schemeUrl);
     }
