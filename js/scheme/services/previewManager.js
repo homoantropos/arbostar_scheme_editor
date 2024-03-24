@@ -1,12 +1,12 @@
-import { config } from "../config/config.js";
-import { getDOMElement } from "../utils/viewManager.js";
+import {config} from "../config/config.js";
+import {getDOMElement} from "../utils/viewManager.js";
 
 class PreviewManager {
     currentImage = null;
     allowSync = false;
     initSchemePreview(schemeUrl) {
         this.setPreviewSrc(schemeUrl);
-        this.setScaling();
+        this.setSchemePreviewZooming();
     }
     setPreviewSrc(schemeUrl) {
         let preview = getDOMElement("#schemePreview");
@@ -130,8 +130,7 @@ class PreviewManager {
         this.currentImage = null;
     }
 
-    // scale and move scheme preview:
-
+    // zooming and move scheme preview:
     schemePreview = getDOMElement('#schemePreview');
     currentY = null;
     currentX = null; // Establish a variable to hold the X position.
@@ -139,7 +138,7 @@ class PreviewManager {
     deltaY = 0;
     deltaX = 0; // Establish a variable to hold the horizontal pan amount.
     scale = 1;
-    setScaling() {
+    setSchemePreviewZooming() {
         this.schemePreview.addEventListener("mousewheel", ($event) => {
             preventEvents($event);
             this.scale += $event.deltaY * -0.01;
@@ -186,9 +185,7 @@ class PreviewManager {
                 const maxDeltaX = (scaledWidth - parentWidth) / 2;
                 this.deltaY = Math.min(maxDeltaY, Math.max(deltaY, -maxDeltaY));
                 this.deltaX = Math.min(maxDeltaX, Math.max(deltaX, -maxDeltaX));
-                const transformValue = `translate(${this.deltaX}px,${this.deltaY}px) scale(${scale})`;
-
-                this.schemePreview.style.transform = transformValue;
+                this.schemePreview.style.transform = `translate(${this.deltaX}px,${this.deltaY}px) scale(${scale})`;
             }
         }
         function preventEvents(event) {
