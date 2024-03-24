@@ -112,6 +112,16 @@ class GalleryToolsController {
         }
         this.setSelected(true);
     }
+    resetGallery() {
+        fabricManager.isITextSelected = false;
+        fabricManager.painting = false;
+        this.toggleColorPickAndBrushSlider();
+        fabricManager.isShowPalette = false;
+        this.toggleColorsPanel();
+        fabricManager.showStickers = false;
+        this.toggleStickers();
+        this.setSelected(true);
+    }
     setSelected(notReSet) {
         this.galleryElementsNames.map(
             elementName => {

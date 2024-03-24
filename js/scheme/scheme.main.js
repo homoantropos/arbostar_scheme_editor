@@ -34,8 +34,6 @@ export function initSchemeComponent() {
 
 /*TO DO
 LOGIC
-2. add trash bin functionality
-3. add proper behavior of gallery tools icons - when fabric page is closed every should set as untouched
 5. [ schemeViewController - fabric ] add stickers panel hiding after sticker choice
 6. [ schemeViewController - fabric ] add cropper hide on choice some other control
 8. [ fabricManager ] reduce saveImg() method calls

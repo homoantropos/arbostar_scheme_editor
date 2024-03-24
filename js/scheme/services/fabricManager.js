@@ -112,10 +112,8 @@ class FabricManager {
             if (event.target) {
                 this._fabric.bringToFront(event.target);
                 this.selectedObject = this._fabric.getActiveObject() || {};
+                galleryToolsViewController.resetGallery();
                 if (event.target.type === 'i-text') {
-                    this.showStickers = false;
-                    galleryToolsViewController.toggleStickers();
-                    this.painting = false;
                     this.isITextSelected = true;
                 } else {
                     this.isITextSelected = false;

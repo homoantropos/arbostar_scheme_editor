@@ -290,6 +290,7 @@ class SchemeViewController {
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
                         const response = await schemeManager.saveScheme();
                         if(response && response.status) {
+                            galleryToolsViewController.resetGallery();
                             previewManager.allowSync = true;
                             await fabricManager.saveImg();
                             this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
@@ -357,6 +358,7 @@ class SchemeViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
+                        galleryToolsViewController.resetGallery();
                         this.showElements(this.getSchemeUiElement('previewContainer').elements);
                         previewManager.initSchemePreview(schemeManager.currentScheme.filepath);
                     }

@@ -216,8 +216,7 @@ class PreviewManager {
 
     transformImage (scale, deltaY, deltaX) {
         if (this.schemePreview) {
-            const parent = this.schemePreview.parentNode;
-            const {height: parentHeight, width: parentWidth} = parent.getBoundingClientRect();
+            const {height: parentHeight, width: parentWidth} = this.schemePreviewContainer.getBoundingClientRect();
             const scaledHeight = this.schemePreview.offsetHeight * scale;
             const scaledWidth = this.schemePreview.offsetWidth * scale;
             let maxDeltaY = 0;
