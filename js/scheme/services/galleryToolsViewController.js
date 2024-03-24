@@ -115,6 +115,7 @@ class GalleryToolsController {
     resetGallery() {
         fabricManager.isITextSelected = false;
         fabricManager.painting = false;
+        fabricManager._fabric.isDrawingMode = false;
         this.toggleColorPickAndBrushSlider();
         fabricManager.isShowPalette = false;
         this.toggleColorsPanel();
@@ -238,8 +239,6 @@ class GalleryToolsController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         fabricManager.startCrop();
-                        hideElement(this.galleryToolsUiElements, 'stickers');
-                        this.setSelected();
                     }
                 }
             ]
@@ -255,9 +254,9 @@ class GalleryToolsController {
             listeners: [
                 {
                     eventName: 'click',
-                    callback: ($event) => {
+                    callback: async ($event) => {
                         $event.stopPropagation();
-                        fabricManager.rotateFabric(-90);
+                        await fabricManager.rotateFabric(-90);
                         this.setSelected();
                     }
                 }
@@ -274,9 +273,9 @@ class GalleryToolsController {
             listeners: [
                 {
                     eventName: 'click',
-                    callback: ($event) => {
+                    callback: async ($event) => {
                         $event.stopPropagation();
-                        fabricManager.rotateFabric(90);
+                        await fabricManager.rotateFabric(90);
                         this.setSelected();
                     }
                 }
@@ -315,7 +314,6 @@ class GalleryToolsController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         fabricManager.showStickers = true;
-                        console.log('THIRD')
                         this.toggleStickers();
                         this.setSelected();
                     }
@@ -415,6 +413,14 @@ class GalleryToolsController {
                         $event.stopPropagation();
                         fabricManager.changeBrushSize($event.target.value);
                     }
+                },
+                {
+                    eventName: 'mouseup',
+                    callback: ($event) => {
+                        $event.stopPropagation();
+                        hideElement(this.galleryToolsUiElements, 'colorPick');
+                        hideElement(this.galleryToolsUiElements, 'sizeBrushSlider');
+                    }
                 }
             ]
         },
@@ -431,7 +437,6 @@ class GalleryToolsController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        console.log("TRASH!");
                     }
                 }
             ]
