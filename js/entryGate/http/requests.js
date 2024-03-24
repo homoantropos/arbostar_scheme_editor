@@ -15,10 +15,10 @@ export async function saveCreatedScheme(schemePayload, url) {
             body: schemePayload
         });
 
-        if (!response.ok) {
+        if (!response.ok && response.status !== 500) {
             throw response;
         }
-        return await response.json();
+        return response.status === 500 ? response : await response.json();
     } catch(e) {
         console.log('Error while http request: ', e);
     }
