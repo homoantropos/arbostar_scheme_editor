@@ -193,7 +193,7 @@ class FabricManager {
                         window.addEventListener('resize', () => this.resize())
                         this.saveImg(false, true);
                         this.getPadding();
-                        if(this.innerLoader) this.innerLoader.style.display = config.display.flex;
+                        if(this.innerLoader) this.innerLoader.style.display = config.display.none;
                     }, 100);
                 },
                 {
@@ -203,6 +203,7 @@ class FabricManager {
         };
         img.onerror = (err) => {
             console.error('Error while cropper init: ', err);
+            if(this.innerLoader) this.innerLoader.style.display = config.display.none;
         };
         img.src = file.original;
     }
@@ -649,7 +650,10 @@ class FabricManager {
                     );
                 };
 
-                img.onerror = (error) => console.error('Error rotated image loading: ', error);
+                img.onerror = (error) => {
+                    console.error('Error rotated image loading: ', error);
+                    if(this.innerLoader) this.innerLoader.style.display = config.display.none;
+                }
 
                 img.src = this._fabric.backgroundImage.toDataURL({
                     format: 'jpeg',
@@ -658,6 +662,7 @@ class FabricManager {
             }
         } catch (e) {
             console.error('Error during rotation: ', e);
+            if(this.innerLoader) this.innerLoader.style.display = config.display.none;
         }
     }
     calculateCoordsPostQuadRotation(object, deg) {
