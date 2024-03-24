@@ -312,6 +312,7 @@ class SchemeViewController {
                     eventName: 'click',
                     callback: async ($event) => {
                         $event.stopPropagation();
+                        previewManager.resetZooming();
                         galleryToolsViewController.initTools();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'canvasContainer'});
                         const { result } = schemeManager.currentEstimate.scheme;
@@ -355,6 +356,7 @@ class SchemeViewController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         this.showElements(this.getSchemeUiElement('previewContainer').elements);
+                        previewManager.initSchemePreview(schemeManager.currentScheme.result);
                     }
                 }
             ]

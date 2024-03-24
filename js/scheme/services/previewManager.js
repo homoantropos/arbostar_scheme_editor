@@ -14,6 +14,7 @@ class PreviewManager {
             schemeUrl = this.getUrlToPreview(schemeUrl);
             preview.src = schemeUrl;
             preview.style.display = config.display.flex;
+            preview.addEventListener('load', () => this.setMinScale())
         } else {
             preview.src = '';
             preview.style.display = config.display.none;
@@ -131,19 +132,39 @@ class PreviewManager {
     }
 
     // zooming and move scheme preview:
+    schemePreviewContainer = getDOMElement('#pinch');
     schemePreview = getDOMElement('#schemePreview');
     currentY = null;
-    currentX = null; // Establish a variable to hold the X position.
+    currentX = null;
     allowPan = false;
     deltaY = 0;
-    deltaX = 0; // Establish a variable to hold the horizontal pan amount.
+    deltaX = 0;
     scale = 1;
+    imgHeight = 0;
+    imgWidth = 0;
+    parentHeight = 0;
+    parentWidth = 0;
+    minScale = 0;
+    calcScale($event) {
+        return this.scale >1 ? $event.deltaY * -0.01 : $event.deltaY * -0.0005;
+    }
     setSchemePreviewZooming() {
         this.schemePreview.addEventListener("mousewheel", ($event) => {
             preventEvents($event);
-            this.scale += $event.deltaY * -0.01;
-            this.scale = Math.min(Math.max(1, this.scale), 3);
-            transformImage(this.scale, this.deltaY, this.deltaX);
+            const scaleChange = this.calcScale($event);
+            let potentialScale = this.scale + scaleChange;
+            const newHeight = this.schemePreview.offsetHeight * potentialScale;
+            const newWidth = this.schemePreview.offsetWidth * potentialScale;
+            if (scaleChange < 0) {
+                if (newHeight > this.parentHeight || newWidth > this.parentWidth) {
+                    this.scale = potentialScale;
+                } else {
+                    this.scale = this.minScale;
+                }
+            } else {
+                this.scale = Math.min(potentialScale, 3);
+            }
+            this.transformImage(this.scale, this.deltaY, this.deltaX);
         });
         this.schemePreview.addEventListener("click", ($event) => {
             preventEvents($event);
@@ -165,7 +186,7 @@ class PreviewManager {
                 const directionX = $event.x - this.currentX;
                 this.deltaX += directionX * 3;
             }
-            transformImage(this.scale, this.deltaY, this.deltaX);
+            this.transformImage(this.scale, this.deltaY, this.deltaX);
             this.currentY = $event.y;
             this.currentX = $event.x;
         });
@@ -175,23 +196,56 @@ class PreviewManager {
             this.currentX = null;
             this.allowPan = false;
         });
-        const transformImage = (scale, deltaY, deltaX) => {
-            if (this.schemePreview) {
-                const parent = this.schemePreview.parentNode;
-                const {height: parentHeight, width: parentWidth} = parent.getBoundingClientRect();
-                const scaledHeight = this.schemePreview.offsetHeight * scale;
-                const scaledWidth = this.schemePreview.offsetWidth * scale;
-                const maxDeltaY = (scaledHeight - parentHeight) / 2;
-                const maxDeltaX = (scaledWidth - parentWidth) / 2;
-                this.deltaY = Math.min(maxDeltaY, Math.max(deltaY, -maxDeltaY));
-                this.deltaX = Math.min(maxDeltaX, Math.max(deltaX, -maxDeltaX));
-                this.schemePreview.style.transform = `translate(${this.deltaX}px,${this.deltaY}px) scale(${scale})`;
-            }
-        }
         function preventEvents(event) {
             event.stopPropagation && event.stopPropagation();
             event.preventDefault && event.preventDefault();
         }
+    }
+    setMinScale() {
+        if(this.minScale) return;
+        if(this.schemePreview.offsetHeight > this.schemePreviewContainer.offsetHeight) {
+            this.schemePreview.style.height = this.schemePreviewContainer.offsetHeight + 'px';
+            this.schemePreview.style.width = 'auto';
+        }
+        this.imgHeight = this.schemePreview.offsetHeight;
+        this.imgWidth = this.schemePreview.offsetWidth;
+        this.parentHeight = this.schemePreviewContainer.offsetHeight;
+        this.parentWidth = this.schemePreviewContainer.offsetWidth;
+        this.minScale = Math.min(this.parentHeight / this.imgHeight, this.parentWidth / this.imgWidth);
+    }
+
+    transformImage (scale, deltaY, deltaX) {
+        if (this.schemePreview) {
+            const parent = this.schemePreview.parentNode;
+            const {height: parentHeight, width: parentWidth} = parent.getBoundingClientRect();
+            const scaledHeight = this.schemePreview.offsetHeight * scale;
+            const scaledWidth = this.schemePreview.offsetWidth * scale;
+            let maxDeltaY = 0;
+            let maxDeltaX = 0;
+            if (scaledHeight > parentHeight) {
+                maxDeltaY = (scaledHeight - parentHeight) / 2;
+            }
+            if (scaledWidth > parentWidth) {
+                maxDeltaX = (scaledWidth - parentWidth) / 2;
+            }
+            this.deltaY = Math.min(maxDeltaY, Math.max(deltaY, -maxDeltaY));
+            this.deltaX = Math.min(maxDeltaX, Math.max(deltaX, -maxDeltaX));
+            this.schemePreview.style.transform = `translate(${this.deltaX}px,${this.deltaY}px) scale(${scale})`;
+        }
+    }
+    resetZooming() {
+        this.currentY = null;
+        this.currentX = null;
+        this.allowPan = false;
+        this.deltaY = 0;
+        this.deltaX = 0;
+        this.scale = 1;
+        this.imgHeight = 0;
+        this.imgWidth = 0;
+        this.parentHeight = 0;
+        this.parentWidth = 0;
+        this.minScale = 0;
+        this.transformImage(this.scale, this.deltaY, this.deltaX);
     }
 }
 
