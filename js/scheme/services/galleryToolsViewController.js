@@ -10,11 +10,14 @@ import debugMessageLogger from "../utils/debugMessageLogger.js";
 
 class GalleryToolsController {
     stickersAreAdded = false;
+    galleryTollsItitiated = false;
     initTools() {
+        if(this.galleryTollsItitiated) return;
         setUIElementsWithListeners(this.galleryToolsUiElements);
         //this.toggleColorPanAndBrushSlider();
         this.createColorsPanel();
         this.createStickersBlock();
+        this.galleryTollsItitiated = true;
     }
 
     // toggleTools() {
@@ -42,7 +45,7 @@ class GalleryToolsController {
             hideElement(this.galleryToolsUiElements, 'colorsPanel');
             hideElement(this.galleryToolsUiElements, 'closePanelSign');
         }
-        fabricManager.isShowPalette = ! fabricManager.isShowPalette;
+        fabricManager.isShowPalette = !fabricManager.isShowPalette;
     }
     createColorsPanel() {
         const colorsPanelElement = getUiElement(this.galleryToolsUiElements, 'colorsPanel');

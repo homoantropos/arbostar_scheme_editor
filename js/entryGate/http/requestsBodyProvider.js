@@ -12,7 +12,7 @@ class SchemeRequestsPayloadProvider {
         if (typeof editedScheme === 'string') {
             body.append('image', editedScheme);
         } else {
-            body.append('image', editedScheme.editedUrl && editedScheme.editedUrl.startsWith('data') ? editedScheme.editedUrl : editedScheme.url ? editedScheme.url : '');
+            body.append('image', editedScheme.result && editedScheme.result.startsWith('data') ? editedScheme.result : editedScheme.filepath ? editedScheme.filepath : '');
         }
         body.append('lead_id', JSON.stringify(schemeManager.currentEstimate.leadId));
         return body;

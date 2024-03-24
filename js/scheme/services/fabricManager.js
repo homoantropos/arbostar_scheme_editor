@@ -1,10 +1,10 @@
-import schemeViewController from "./schemeViewController.js";
-import schemeManager from "./schemeManager.js";
 import debugMessenger from "../utils/debugMessageLogger.js"
-import { EDITING_MODES } from "../config/config.js";
-import { getSafeCopy } from "../utils/safeJsonParser.js";
-import { getDOMElement } from "../utils/viewManager.js";
 import galleryToolsViewController from "./galleryToolsViewController.js";
+import schemeManager from "./schemeManager.js";
+import schemeViewController from "./schemeViewController.js";
+import { EDITING_MODES } from "../config/config.js";
+import { getDOMElement } from "../utils/viewManager.js";
+import { getSafeCopy } from "../utils/safeJsonParser.js";
 
 const { BehaviorSubject } = rxjs;
 
@@ -655,7 +655,6 @@ class FabricManager {
             console.error('Error during rotation: ', e);
         }
     }
-
     calculateCoordsPostQuadRotation(object, deg) {
         const {
             left: objectLeft = this.imageWidthBeforeRotate,
@@ -750,7 +749,7 @@ class FabricManager {
         } else if (this.editedScheme?.crop && this.editedScheme?.crop?.length > 0) {
             const lastState = this.editedScheme.crop.pop();
             if (lastState) {
-                this.editedScheme.url = this.editedScheme.crop.length === 0 ? lastState.url : lastState.editedUrl || lastState.url;
+                this.editedScheme.dataUrl = this.editedScheme.crop.length === 0 ? lastState.dataUrl : lastState.result || lastState.dataUrl;
                 this.chooseImg(this.editedScheme);
             }
         } else {
@@ -770,7 +769,7 @@ class FabricManager {
                         const multiplier = this.calculateScaleMultiplier();
                         await new Promise(resolve => {
                             const format = this.editedScheme.ext === 'png' ? 'png' : 'jpeg';
-                            this.editedScheme.editedUrl = this._fabric.toDataURL({format, multiplier});
+                            this.editedScheme.result = this._fabric.toDataURL({format, multiplier});
                             schemeManager.setCurrentScheme(getSafeCopy(this.editedScheme));
                             resolve();
                         });
@@ -872,7 +871,7 @@ class FabricManager {
     }
 
     setEditorMode(mode) {
-        this._currentMode = EDITING_MODES[mode.toLowerCase()];
+        this._currentMode = EDITING_MODES[mode.mode.toLowerCase()];
     }
     isCurrentEditorMode(mode) {
         return mode === this.editorMode;

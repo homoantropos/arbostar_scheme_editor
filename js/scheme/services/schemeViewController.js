@@ -294,10 +294,10 @@ class SchemeViewController {
                     callback: async ($event) => {
                         $event.stopPropagation();
                         this.viewNavigationRouter$.next({load: true, targetElementName: 'previewContainer'});
-                        previewManager.allowSync = true;
-                        await fabricManager.saveImg();
                         const response = await schemeManager.saveScheme();
                         if(response && response.status) {
+                            previewManager.allowSync = true;
+                            await fabricManager.saveImg();
                             this.viewNavigationRouter$.next({load: false, targetElementName: 'previewContainer'});
                         } else {
                             this.viewNavigationRouter$.next({load: false, targetElementName: 'canvasContainer'});
@@ -399,7 +399,7 @@ class SchemeViewController {
                     eventName: 'click',
                     callback: ($event) => {
                         $event.stopPropagation();
-                        const divToggle = document.querySelector('.scheme__main.back__drop');
+                        const divToggle = getDOMElement('.scheme__main.back__drop');
                         this.hideSchemeComponent(divToggle);
                     }
                 }

@@ -26,13 +26,13 @@ class SchemeManager {
         newScheme && (schemeEditorAPI.importDataToSchemeEditor('estimate').scheme = getSafeCopy(newScheme));
         this._currentScheme = newScheme ? getSafeCopy(newScheme) : newScheme;
         this.schemeOutput$.next(this._currentScheme);
-        previewManager.allowSync && previewManager.setPreviewSrc(newScheme?.editedUrl || newScheme?.result || newScheme?.original || newScheme?.filepath);
+        previewManager.allowSync && previewManager.setPreviewSrc(newScheme?.result || newScheme?.original || newScheme?.filepath);
         previewManager.allowSync = false;
     }
 
     seCurrentSchemeProperty(propertyName, propertyValue) {
         this.currentScheme[propertyName] = propertyValue;
-        if(propertyName === 'result' || propertyName === 'editedUrl') {
+        if(propertyName === 'result') {
             previewManager.setPreviewSrc(propertyValue);
         }
         this.schemeOutput$.next(this._currentScheme);
@@ -62,8 +62,9 @@ class SchemeManager {
         }
         const data = model.getResponseData(resWithSchemeOriginalURLAndElementsObj);
         const { original, elements } = data;
-        const dataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(original);
-        return await this.createScheme(dataUrl, dataUrl, elements, false);
+        const result = this.currentScheme.result;
+        //const dataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(original);
+        return await this.createScheme(result, original, elements, false);
     }
     createSchemeFromSchemePathAndElementsURLString(resWithSchemePathAndElementsURLString) {
         if(!model.respHasSchemePathAndElementsURLs(resWithSchemePathAndElementsURLString)) {
@@ -83,16 +84,17 @@ class SchemeManager {
         scheme.result = mapAsDataUrl;
         this.setCurrentScheme(scheme);
     }
-    async createScheme(schemeDataUrl, schemeOriginal, schemeElements, source) {
+    async createScheme(schemeResult, schemeOriginal, schemeElements, source) {
         if(!(arguments.length >= 3 || arguments.length <= 4)) {
             debugMessageLogger.logDebug(`createScheme() should has 3 or 4 arg, got ${arguments.length}`);
             return;
         }
-        if(schemeDataUrl.startsWith('http')) {
-            schemeDataUrl = await imagesManager.getSchemeAsDataUrlIfOnline(schemeDataUrl + '?' + String(Date.now()));
+        if(schemeResult.startsWith('http')) {
+            schemeResult = await imagesManager.getSchemeAsDataUrlIfOnline(schemeResult + '?' + String(Date.now()));
         }
         const scheme = getSafeCopy(model.defaultScheme);
-        scheme.dataUrl = schemeDataUrl;
+        scheme.filepath = this.currentScheme.filepath;
+        scheme.result = schemeResult;
         scheme.original = schemeOriginal;
         scheme.width = schemeElements.width;
         scheme.height = schemeElements.height;

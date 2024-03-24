@@ -18,11 +18,32 @@ export const config = {
 }
 
 export const EDITING_MODES = Object.freeze({
-    pending: 'PENDING',
-    paint: 'PAINT',
-    crop: 'CROP',
-    sticker: 'STICKER',
-    text: 'TEXT',
-    rotate: 'ROTATE',
-    aboveTrash: 'ABOVETRASH'
+    pending: {
+        mode: 'PENDING',
+        flag: ''
+    },
+    paint: {
+        mode: 'PAINT',
+        flag: 'painting'
+    },
+    crop: {
+        mode: 'CROP',
+        flag: ''
+    },
+    sticker: {
+        mode: 'STICKER',
+        flag: 'showStickers'
+    },
+    text: {
+        mode: 'TEXT',
+        flag: 'isITextSelected'
+    },
+    rotate: {
+        mode: 'ROTATE',
+        flag: ''
+    },
+    aboveTrash: {
+        mode: 'ABOVETRASH',
+        flag: 'isTrashVisible'
+    }
 });

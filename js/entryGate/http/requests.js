@@ -2,7 +2,6 @@ import model from "../../scheme/model/model.js";
 import previewManager from "../../scheme/services/previewManager.js";
 import { config } from "../../scheme/config/config.js";
 import { getSafeCopy } from "../../scheme/utils/safeJsonParser.js";
-import { imageExample } from "../../mockddata/imageexample.js";
 import { keys } from "../../scheme/config/keys.js";
 import { mockEstimate } from "../../mockddata/mockEstimate.js";
 import {authHeader, headers, saveHeader} from "./headers.js";
