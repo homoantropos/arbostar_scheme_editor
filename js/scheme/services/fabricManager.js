@@ -2,7 +2,7 @@ import debugMessenger from "../utils/debugMessageLogger.js"
 import galleryToolsViewController from "./galleryToolsViewController.js";
 import schemeManager from "./schemeManager.js";
 import schemeViewController from "./schemeViewController.js";
-import { EDITING_MODES } from "../config/config.js";
+import {config, EDITING_MODES} from "../config/config.js";
 import { getDOMElement } from "../utils/viewManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 
@@ -11,9 +11,10 @@ const { BehaviorSubject } = rxjs;
 class FabricManager {
     container = getDOMElement('.content__wrapper');
     canvas = getDOMElement('#canvas_C');
-    galleryInner = getDOMElement('.media__wrap.canvas__container')
+    galleryInner = getDOMElement('.media__wrap.canvas__container');
     brushSlider = getDOMElement('#brush-slider');
     trash = getDOMElement('#trash');
+    innerLoader = getDOMElement('.inner__loader__container');
     _fabric;
     backImage;
     editedScheme;
@@ -52,6 +53,7 @@ class FabricManager {
     // canvas initialisation and operation
     async initCanvas() {
         try {
+            if(this.innerLoader) this.innerLoader.style.display = config.display.flex;
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
             this._fabric.freeDrawingBrush.color = 'green';
             this._fabric.freeDrawingBrush.width = 20;
@@ -191,6 +193,7 @@ class FabricManager {
                         window.addEventListener('resize', () => this.resize())
                         this.saveImg(false, true);
                         this.getPadding();
+                        if(this.innerLoader) this.innerLoader.style.display = config.display.flex;
                     }, 100);
                 },
                 {
@@ -593,6 +596,7 @@ class FabricManager {
         }
     }
     async rotateFabric(deg){
+        if(this.innerLoader) this.innerLoader.style.display = config.display.flex;
         if (!this.allowChanges) return;
         this.allowChanges = !this.allowChanges;
         if (deg === 0) return;
@@ -637,6 +641,7 @@ class FabricManager {
                              });
                             this.saveImg();
                             this.getPadding();
+                            if(this.innerLoader) this.innerLoader.style.display = config.display.none;
                         },
                         {
                             crossOrigin: 'anonymous'
