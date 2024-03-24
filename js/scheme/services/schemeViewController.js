@@ -356,7 +356,7 @@ class SchemeViewController {
                     callback: ($event) => {
                         $event.stopPropagation();
                         this.showElements(this.getSchemeUiElement('previewContainer').elements);
-                        previewManager.initSchemePreview(schemeManager.currentScheme.result);
+                        previewManager.initSchemePreview(schemeManager.currentScheme.filepath);
                     }
                 }
             ]
