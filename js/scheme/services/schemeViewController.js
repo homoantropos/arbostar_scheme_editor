@@ -58,6 +58,8 @@ class SchemeViewController {
                 this.hideSchemeComponent(divToggle);
             }
         });
+        getDOMElement('.toggle__button').disabled = false;
+        getDOMElement('.component__loader').style.display = config.display.none;
     }
     initViewController() {
         setUIElementsWithListeners(this.schemeUiElements);

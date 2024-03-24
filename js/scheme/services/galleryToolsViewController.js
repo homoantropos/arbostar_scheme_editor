@@ -14,7 +14,6 @@ class GalleryToolsController {
     initTools() {
         if(this.galleryTollsItitiated) return;
         setUIElementsWithListeners(this.galleryToolsUiElements);
-        //this.toggleColorPanAndBrushSlider();
         this.createColorsPanel();
         this.createStickersBlock();
         this.galleryTollsItitiated = true;
@@ -72,7 +71,6 @@ class GalleryToolsController {
     }
     createStickersBlock() {
         if(this.stickersAreAdded) return;
-        this.stickersAreAdded = true;
         const stickersContainer = getUiElement(this.galleryToolsUiElements, 'stickers');
         if(!stickersContainer || !stickersContainer.targetElement) {
             debugMessageLogger.logDebug('at createStickersBlock() target element should be HTMLElement');
@@ -92,7 +90,8 @@ class GalleryToolsController {
             }
         )
         this.addNumberPickerListener();
-    }
+        this.stickersAreAdded = true;
+     }
     addNumberPickerListener() {
         const numbersPicker = getDOMElement('#numbersPicker');
         if(numbersPicker) {
@@ -108,17 +107,19 @@ class GalleryToolsController {
             hideElement(this.galleryToolsUiElements, 'stickers');
         } else {
             showElement(this.galleryToolsUiElements, 'stickers');
+            fabricManager.painting = false;
+            fabricManager.isITextSelected = false;
         }
-        fabricManager.painting = false;
-        fabricManager.isITextSelected = false;
+        this.setSelected(true);
     }
-    setSelected() {
+    setSelected(notReSet) {
         this.galleryElementsNames.map(
             elementName => {
                 const element = getUiElement(this.galleryToolsUiElements, elementName).targetElement;
                 if(element.classList.contains('cl-main')) {
                     element.classList.remove('cl-main');
                 }
+                if(notReSet) return;
                 if(fabricManager.isITextSelected && elementName === 'addText') {
                     element.classList.add('cl-main');
                 }
@@ -208,7 +209,6 @@ class GalleryToolsController {
                         $event.stopPropagation();
                         fabricManager.togglePaintMode();
                         this.toggleColorPickAndBrushSlider();
-
                         this.setSelected();
                     }
                 }

@@ -3,7 +3,7 @@ import galleryToolsViewController from "./galleryToolsViewController.js";
 import schemeManager from "./schemeManager.js";
 import schemeViewController from "./schemeViewController.js";
 import {config, EDITING_MODES} from "../config/config.js";
-import { getDOMElement } from "../utils/viewManager.js";
+import {getDOMElement, getUiElement} from "../utils/viewManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 
 const { BehaviorSubject } = rxjs;
@@ -31,6 +31,7 @@ class FabricManager {
     isMouseOverTrash = false;
     showStickers = false;
     isITextSelected = false;
+    painting = false;
     showPhotos = false;
     text_color = '#dfff30';
     text_size = 30;
@@ -45,7 +46,7 @@ class FabricManager {
     imageIsReady = false;
     allowChanges = true;
 
-    fabricElements$ = new BehaviorSubject({});
+    //fabricElements$ = new BehaviorSubject({});
     isCropping$ = new BehaviorSubject(false);
     initFabricManager() {
     }
@@ -54,6 +55,7 @@ class FabricManager {
     async initCanvas() {
         try {
             if(this.innerLoader) this.innerLoader.style.display = config.display.flex;
+            schemeViewController.disableButton('saveButton');
             this._fabric ? this._fabric.clear() : this._fabric = await this.createCanvas();
             this._fabric.freeDrawingBrush.color = 'green';
             this._fabric.freeDrawingBrush.width = 20;
@@ -767,20 +769,22 @@ class FabricManager {
         }
     }
     saveImg(cropAgain) {
+        schemeViewController.disableButton('saveButton');
         new Promise(
             resolve => setTimeout(() => resolve(), 50)
         ).then(
             async () => {
                 if(this._fabric && this.editedScheme) {
-                        this.stringifyImage();
+                        //this.stringifyImage();
                         this.editedScheme.elements = this.getSerializedObjects();
                         this.editedScheme.width = this.editedScheme.elements.width;
                         this.editedScheme.height = this.editedScheme.elements.height;
                         const multiplier = this.calculateScaleMultiplier();
-                        await new Promise(resolve => {
+                        await new Promise(async resolve => {
                             const format = this.editedScheme.ext === 'png' ? 'png' : 'jpeg';
                             this.editedScheme.result = this._fabric.toDataURL({format, multiplier});
-                            schemeManager.setCurrentScheme(getSafeCopy(this.editedScheme));
+                            schemeManager.setCurrentScheme(await getSafeCopy(this.editedScheme));
+                            schemeViewController.enableButton('saveButton');
                             resolve();
                         });
                         this.imageWidthBeforeRotate = Math.max(this._fabric.width || 0, Number(this.canvas.clientWidth));
@@ -797,7 +801,7 @@ class FabricManager {
     }
     stringifyImage() {
         const elements = this.getSerializedObjects();
-        this.fabricElements$.next(elements);
+        //this.fabricElements$.next(elements);
     }
     getSerializedObjects() {
         const serializedCanvas = this._fabric.toJSON(['width', 'height']);

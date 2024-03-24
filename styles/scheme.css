@@ -1516,8 +1516,8 @@ body {
 }
 .scheme__main.back__drop .scheme__wrapper .content__wrapper .canvas__container .inner__loader__container .canvas__loader {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: calc(50% - 20px);
+  left: calc(50% - 20px);
   border: 3px solid #228b22;
   border-right-color: #f3f3f3;
   border-radius: 50%;
@@ -1543,8 +1543,8 @@ body {
 }
 .scheme__main.back__drop .scheme__wrapper .loader {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: calc(50% - 30px);
+  left: calc(50% - 30px);
   display: none;
   border: 6px solid #3498db;
   border-right-color: #f3f3f3;
