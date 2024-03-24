@@ -3,13 +3,13 @@ import galleryToolsViewController from "./galleryToolsViewController.js";
 import schemeManager from "./schemeManager.js";
 import schemeViewController from "./schemeViewController.js";
 import {config, EDITING_MODES} from "../config/config.js";
-import {getDOMElement, getUiElement} from "../utils/viewManager.js";
+import {getDOMElement, getUiElement, showElement} from "../utils/viewManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 
 const { BehaviorSubject } = rxjs;
 
 class FabricManager {
-    container = getDOMElement('.content__wrapper');
+    container = getDOMElement('.canvas__container');
     canvas = getDOMElement('#canvas_C');
     galleryInner = getDOMElement('.media__wrap.canvas__container');
     brushSlider = getDOMElement('#brush-slider');
@@ -95,12 +95,15 @@ class FabricManager {
             }
             if (
                 event.pointer.x >= trashOffset.x &&
-                event.pointer.x <= Number(trashOffset.x) + 35 &&
+                event.pointer.x <= trashOffset.x + 35 &&
                 event.pointer.y >= trashOffset.y &&
-                event.pointer.y <= trashOffset.y + 35
+                event.pointer.y <= trashOffset.y + 40
             ) {
                 cb();
-            } else this.isMouseOverTrash = false;
+            } else {
+                this.isMouseOverTrash = false;
+                this.trash.classList.remove('_ok');
+            }
         };
         this._fabric.on('mouse:down', (event) => {
             if (this.painting) {
@@ -111,7 +114,6 @@ class FabricManager {
                 this.selectedObject = this._fabric.getActiveObject() || {};
                 if (event.target.type === 'i-text') {
                     this.showStickers = false;
-                    console.log('addFabricEvents');
                     galleryToolsViewController.toggleStickers();
                     this.painting = false;
                     this.isITextSelected = true;
@@ -137,6 +139,7 @@ class FabricManager {
                     this.saveImg();
                 });
                 this.isTrashVisible = false;
+                this.trash.style.display = config.display.none;
             }
 
             if (this.painting) {
@@ -144,10 +147,12 @@ class FabricManager {
             }
         });
         this._fabric.on('object:moving', (event) => {
+            showElement(galleryToolsViewController.galleryToolsUiElements, 'trashBin');
             if (event.target) {
                 this.isTrashVisible = true;
                 onObjectOverTrash(event, () => {
                     this.isMouseOverTrash = true;
+                    this.trash.classList.add('_ok');
                 });
             }
             this.saveImg();
