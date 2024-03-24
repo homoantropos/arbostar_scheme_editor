@@ -1434,10 +1434,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 95%;
+  overflow: hidden;
+  transition: 500ms ease-out;
 }
 .scheme__main.back__drop .scheme__wrapper .content__wrapper .preview__container img {
   width: 100%;
   height: auto;
+  transition: 300ms ease-out;
 }
 .scheme__main.back__drop .scheme__wrapper .content__wrapper .canvas__container {
   position: relative;

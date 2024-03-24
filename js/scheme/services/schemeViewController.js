@@ -5,11 +5,11 @@ import model from "../model/model.js";
 import {config} from "../config/config.js";
 import galleryToolsViewController from "./galleryToolsViewController.js";
 import {
-    setUIElementsWithListeners,
-    setElementsVisibility,
+    getDOMElement,
     getUiElement,
     getUiElementsObjKeys,
-    getDOMElement
+    setElementsVisibility,
+    setUIElementsWithListeners
 } from "../utils/viewManager.js";
 import schemeManager from "./schemeManager.js";
 import previewManager from "./previewManager.js";
@@ -17,13 +17,8 @@ import previewManager from "./previewManager.js";
 const { BehaviorSubject, Subject } = rxjs;
 const { takeUntil } = rxjs.operators;
 
-const pinch = getDOMElement('#pinch');
-const hammertime = new Hammer(pinch);
-hammertime.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-
-hammertime.on("panleft panright panup pandown tap press", function(ev) {
-    console.log(ev.type +" gesture detected.");
-});
+// css smooth transition
+const transitionValue = '0.3s ease-out';
 
 class SchemeViewController {
     constructor() { }
@@ -155,9 +150,6 @@ class SchemeViewController {
     }
 
     // scheme dom elements and config
-    // getUiElement(uiConfigObj, elementName) {
-    //     return uiConfigObj[elementName];
-    // }
     getSchemeUiElement(elementName) {
         return getUiElement(this.schemeUiElements, elementName);
     }

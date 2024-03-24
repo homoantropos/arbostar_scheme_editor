@@ -11,10 +11,15 @@ export const config = {
         flex: 'flex'
     },
     mockData: {
-        leadId: 35443,
-        estimateId: 15116,
-        schemeID: 63608
+        leadId: 35378,
+        estimateId: 15072,
+        schemeID: null
     }
+    // mockData: {
+    //     leadId: 35443,
+    //     estimateId: 15116,
+    //     schemeID: 63608
+    // }
 }
 
 export const EDITING_MODES = Object.freeze({

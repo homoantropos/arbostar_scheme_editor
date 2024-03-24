@@ -6,6 +6,7 @@ class PreviewManager {
     allowSync = false;
     initSchemePreview(schemeUrl) {
         this.setPreviewSrc(schemeUrl);
+        this.setScaling();
     }
     setPreviewSrc(schemeUrl) {
         let preview = getDOMElement("#schemePreview");
@@ -127,6 +128,73 @@ class PreviewManager {
     }
     destroyImagesService() {
         this.currentImage = null;
+    }
+
+    // scale and move scheme preview:
+
+    schemePreview = getDOMElement('#schemePreview');
+    currentY = null;
+    currentX = null; // Establish a variable to hold the X position.
+    allowPan = false;
+    deltaY = 0;
+    deltaX = 0; // Establish a variable to hold the horizontal pan amount.
+    scale = 1;
+    setScaling() {
+        this.schemePreview.addEventListener("mousewheel", ($event) => {
+            preventEvents($event);
+            this.scale += $event.deltaY * -0.01;
+            this.scale = Math.min(Math.max(1, this.scale), 3);
+            transformImage(this.scale, this.deltaY, this.deltaX);
+        });
+        this.schemePreview.addEventListener("click", ($event) => {
+            preventEvents($event);
+        });
+        this.schemePreview.addEventListener("mousedown", ($event) => {
+            preventEvents($event);
+            this.allowPan = true;
+            this.currentY = $event.y;
+            this.currentX = $event.x;
+        });
+        this.schemePreview.addEventListener("mousemove", ($event) => {
+            preventEvents($event);
+            if(!this.allowPan) return;
+            if (this.currentY !== null) {
+                const directionY = $event.y - this.currentY;
+                this.deltaY += directionY * 3;
+            }
+            if (this.currentX !== null) {
+                const directionX = $event.x - this.currentX;
+                this.deltaX += directionX * 3;
+            }
+            transformImage(this.scale, this.deltaY, this.deltaX);
+            this.currentY = $event.y;
+            this.currentX = $event.x;
+        });
+        this.schemePreview.addEventListener("mouseup", ($event) => {
+            preventEvents($event);
+            this.currentY = null;
+            this.currentX = null;
+            this.allowPan = false;
+        });
+        const transformImage = (scale, deltaY, deltaX) => {
+            if (this.schemePreview) {
+                const parent = this.schemePreview.parentNode;
+                const {height: parentHeight, width: parentWidth} = parent.getBoundingClientRect();
+                const scaledHeight = this.schemePreview.offsetHeight * scale;
+                const scaledWidth = this.schemePreview.offsetWidth * scale;
+                const maxDeltaY = (scaledHeight - parentHeight) / 2;
+                const maxDeltaX = (scaledWidth - parentWidth) / 2;
+                this.deltaY = Math.min(maxDeltaY, Math.max(deltaY, -maxDeltaY));
+                this.deltaX = Math.min(maxDeltaX, Math.max(deltaX, -maxDeltaX));
+                const transformValue = `translate(${this.deltaX}px,${this.deltaY}px) scale(${scale})`;
+
+                this.schemePreview.style.transform = transformValue;
+            }
+        }
+        function preventEvents(event) {
+            event.stopPropagation && event.stopPropagation();
+            event.preventDefault && event.preventDefault();
+        }
     }
 }
 
