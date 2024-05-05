@@ -4,8 +4,18 @@ import {mockEstimate} from "../../mockddata/mockEstimate.js";
 
 class MapManager {
     map;
+    maxZoom = 18;
+    maxZoomService;
     async initMap() {
-        const position = { lat: mockEstimate.lead.latitude, lng: mockEstimate.lead.longitude };
+        const { MaxZoomService } = await google.maps.importLibrary("maps");
+        this.maxZoomService = new MaxZoomService();
+        const lat = mockEstimate.lead.latitude;
+        const lng = mockEstimate.lead.longitude;
+        const position = { lat: lat, lng: lng };
+        const latLng = new google.maps.LatLng(lat, lng);
+        await this.maxZoomService.getMaxZoomAtLatLng(latLng, (result) => {
+            result.status === 'OK' && (this.maxZoom = result.zoom);
+        });
         const { Map } = await google.maps.importLibrary("maps");
         const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
         this.map = new Map(getDOMElement("#map"), {
@@ -15,7 +25,7 @@ class MapManager {
             mapId: "DEMO_MAP_ID",
             mapTypeId: 'satellite',
             tilt: 0,
-            zoom: 18
+            zoom: this.maxZoom
         });
         // add marker
         new AdvancedMarkerElement({
