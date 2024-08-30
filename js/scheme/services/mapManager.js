@@ -1,3 +1,4 @@
+import html2canvas from "html2canvas";
 import schemeManager from "./schemeManager.js";
 import { getDOMElement } from "../utils/viewManager.js";
 import {mockEstimate} from "../../mockddata/mockEstimate.js";

@@ -1,3 +1,4 @@
+import { BehaviorSubject, Subject, takeUntil } from "rxjs";
 import fabricManager from "./fabricManager.js";
 import mapManager from "./mapManager.js";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
@@ -13,9 +14,6 @@ import {
 } from "../utils/viewManager.js";
 import schemeManager from "./schemeManager.js";
 import previewManager from "./previewManager.js";
-
-const { BehaviorSubject, Subject } = rxjs;
-const { takeUntil } = rxjs.operators;
 
 // css smooth transition
 const transitionValue = '0.3s ease-out';

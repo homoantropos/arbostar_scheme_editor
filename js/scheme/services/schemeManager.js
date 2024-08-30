@@ -1,3 +1,4 @@
+import { BehaviorSubject } from "rxjs";
 import debugMessageLogger from "../utils/debugMessageLogger.js";
 import imagesManager from "./previewManager.js";
 import mapManager from "./mapManager.js";
@@ -9,8 +10,6 @@ import schemeViewController from "./schemeViewController.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
 import { config } from "../config/config.js";
 import { deleteScheme, retrieveScheme, saveCreatedScheme } from "../../entryGate/http/requests.js";
-
-const { BehaviorSubject } = rxjs;
 
 class SchemeManager {
     currentEstimate;
@@ -109,6 +108,8 @@ class SchemeManager {
             let { elements } = model.getResponseData(data);
             if(elements && typeof elements === 'string') {
                 data.data.elements = JSON.parse(elements);
+            } else {
+                data.data.elements = model.defaultScheme.elements;
             }
             let uploadedScheme;
             if(model.respHasSchemeOriginalURLAndElementsObj(data)) {

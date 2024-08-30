@@ -1,12 +1,12 @@
+import { BehaviorSubject } from "rxjs";
+import { fabric } from "fabric";
 import debugMessenger from "../utils/debugMessageLogger.js"
 import galleryToolsViewController from "./galleryToolsViewController.js";
 import schemeManager from "./schemeManager.js";
 import schemeViewController from "./schemeViewController.js";
 import {config, EDITING_MODES} from "../config/config.js";
-import {getDOMElement, getUiElement, showElement} from "../utils/viewManager.js";
+import { getDOMElement, getUiElement, showElement } from "../utils/viewManager.js";
 import { getSafeCopy } from "../utils/safeJsonParser.js";
-
-const { BehaviorSubject } = rxjs;
 
 class FabricManager {
     container = getDOMElement('.canvas__container');

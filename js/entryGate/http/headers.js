@@ -1,4 +1,4 @@
-import {keys} from "../../scheme/config/keys.js";
+import { keys } from "../../scheme/config/keys.js";
 
 export const headers = {
     'Accept': 'application/json, text/plain, */*',
